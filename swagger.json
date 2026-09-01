@@ -1,0 +1,4117 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Ozon Performance API 文档",
+    "version": "2.0",
+    "x-logo": {
+      "url": "https://ir.ozone.ru/s3/helppartners/ozon-logo-for-api-referral.svg",
+      "backgroundColor": null,
+      "altText": "Ozon logo"
+    },
+    "description": "\n在文件中描述了Ozon Performance API — 用于与广告管理面板进行交换的接口方法\n系统卖家和Ozon之间的信息。\n\n关于使用API的工作问题，请通过个人中心联系客服。\n"
+  },
+  "servers": [
+    {
+      "url": "https://api-performance.ozon.ru:443"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "总描述",
+      "tags": [
+        "Intro",
+        "Token",
+        "Limits",
+        "News"
+      ]
+    },
+    {
+      "name": "性能API方法",
+      "tags": [
+        "Campaign",
+        "Statistics",
+        "Ad",
+        "Product",
+        "Search-Promo",
+        "Vendor"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Intro",
+      "x-displayName": "介绍",
+      "description": "要使用Ozon广告活动报告API，请在您的个人中心获取 `client_id` 和 `client_secret`：\n1. 在个人中心进入页面 [**设置 → API-密钥**](https://seller.ozon.ru/app/settings/api-keys?currentTab=performanceApi). \n2. 如果需要，请创建服务账号：点击 **创建新账号**。\n3. 点击服务账号名称。\n4. 点击 **添加新密钥**。\n\n用于使用API：\n1. 使用 `client_id` 和 `client_secret` 在授权服务中获取授权令牌。\n2. 使用授权令牌执行请求。如果令牌已过期，请获取新的令牌。"
+    },
+    {
+      "name": "Token",
+      "x-displayName": "如何获取API-密钥",
+      "description": "要获取授权令牌，请发送请求：\n\n```yaml\nPOST /api/client/token HTTP/1.1\nHost: https://api-performance.ozon.ru\nContent-Type: application/json\nAccept: application/json\n\n{\n  \"client_id\":\"XYZ@advertising.performance.ozon.ru\", \n  \"client_secret\":\"b1u5XXDQW3wEqQ7dG...ancMyuhQtMNBI\", \n  \"grant_type\":\"client_credentials\"\n}\n```\n\n服务会返回带有有效期秒数的令牌：\n\n```yaml\n{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\",\n  \"expires_in\": 1800,\n  \"token_type\": \"Bearer\"\n}\n```"
+    },
+    {
+      "name": "Limits",
+      "x-displayName": "请求限制",
+      "description": "每天的请求总限额为100,000。\n\n在报告生成的开始检查上传统计数据的限制。 \n\n限额适用于来自[**统计**](#tag/Statistics)部分的报告。\n\n一条广告活动 = 一条导出。\n\n如果请求中有多个广告活动，这将被视为多个导出。\n\n每天的导出数量限制按以下公式计算：活跃广告数量 × 240 — 但不超过以下表格中的值。\n\n下载限制：\n\n| 限制                                                        | 限额的含义 |\n|--------------------------------------------------------------|-----------------|\n| 导出文件的天数限制                          | 62              |\n| 报告中的广告数量限制                        | 10              |\n| 账户同时导出数量的限制        | 1               |\n| 每天账户的下载数量限制           | 2000            |\n| 组织同时下发数量的限制   | 5               |\n| 在组织范围内的24小时内的下载数量限制 | 2000            |\n"
+    },
+    {
+      "name": "News",
+      "x-displayName": "更新",
+      "description": "## 2026年8月6日\n\n| 方法                                                      | 变更                                                  |\n|---------------------------------------------------------|-----------------------------------------------------|\n| [GET /api/client/campaign](#operation/ListCampaigns)    | 在方法响应的`list.placement`参数中新增了`PLACEMENT_TILE_MAIN`值。 |\n| [POST /api/client/statistics](#operation/SubmitRequest) | 更新了方法描述。                                            |\n\n## 2026年6月8日\n\n| 方法                                                                                       | 变更                          |\n|------------------------------------------------------------------------------------------|-----------------------------|\n| [GET /api/client/statistics/campaign/product](#operation/ProductCampaignList)            | 已更新方法描述。                    |\n| [POST /api/client/statistics/products/sku](#operation/SearchPromoProductsSKUStatistics2) | 新增了用于获取按点击付费广告活动中商品统计数据的方法。 |\n\n## 2026年6月2日\n\n| 方法 | 变更                                                |\n|-------|---------------------------------------------------|\n| [POST /api/client/campaign/{campaignId}/products](#operation/AddProducts) <br> [PUT /api/client/campaign/{campaignId}/products](#operation/UpdateProducts) | 添加了参数`bids.topPosition`至方法请求中。                    |\n|[GET /api/client/campaign/{campaignId}/v2/products](#operation/GetProductsV2) | 在方法响应中添加了参数`products.topPosition`。|\n| [GET /api/client/campaign/all_sku_promo/activate](#operation/ActivateAllSkuPromoCampaign)| 在方法响应中添加了参数`selectedBid`。   |\n\n## 2026年5月22日\n\n| 方法                                                                                                                                                                  | 变更                                                                                                                                                                                                                           |\n|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| [POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)                                                                                      | 已更新方法说明。<br> 在方法请求中：<ul><li>更新了`productAutopilotStrategy`参数的说明；</li><li>将`dailyBudget`参数标记为已弃用。</li></ul> |\n| [POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign) <br> [POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign) | 在这些方法的响应中：<ul><li>更新了`productAutopilotStrategy`和`placement`参数的说明；</li><li>删除了`advObjectType`参数；</li><li>将`dailyBudget`参数标记为已弃用。</li></ul>       |\n| [PATCH /api/client/campaign/{campaignId}](#operation/PatchProductCampaign)                                                                                             | 在方法请求中`dailyBudget`参数标记为已弃用。                                                                                              |\n| [POST /api/client/campaign/{campaignId}/products](#operation/AddProducts) <br> [PUT /api/client/campaign/{campaignId}/products](#operation/UpdateProducts)             | 在方法请求中：<ul><li> 新增了参数`bids.targetCir`；</li><li> 更新了参数的说明`bids.bid`。 </li></ul>                                                                                                        |\n| [GET /api/client/campaign/{campaignId}/v2/products](#operation/GetProductsV2)                                                                                          | 在方法响应中：<ul><li> 新增了参数`products.targetCir`；</li><li> 更新了参数的说明`products.bid`。 </li></ul>                                                                                                  |\n\n## 2026年4月8日\n\n| 方法                                                                                                                                                                                                                                                                                                                                                                                                                 | 变更                        |\n|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|\n| [GET /api/client/campaign/all_sku_promo/activate](#operation/ActivateAllSkuPromoCampaign)<br>[GET /api/client/campaign/all_sku_promo/deactivate](#operation/DeactivateAllSkuPromoCampaign)<br>[GET /api/client/statistics/all_sku_promo/orders/generate](#operation/GenerateAllSkuPromoOrdersReport)<br>[GET /api/client/statistics/all_sku_promo/products/generate](#operation/GenerateAllSkuPromoProductsReport) | 新增了用于管理“按订单付费”下所有商品推广的方法。 |\n| [POST /api/client/statistic/orders/generate](#operation/SearchPromoOrdersReportSubmitRequest)<br>[POST /api/client/statistic/products/generate](#operation/SearchPromoProductsReportSubmitRequest)                                                                                                                                                                                                                 | 更新了方法名称。                  |\n\n## 2026年2月18日\n\n| 方法                                                                                            | 变更             |\n|-----------------------------------------------------------------------------------------------|-------------------|\n| [POST /api/client/statistics/phrases](#operation/ExternalStatistics_StatisticsPhrasesSubmitRequest2) | 已新增获取搜索查询报告的接口。 |\n\n## 2026年1月21日\n\n| 方法                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 变更             |\n|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|\n| [POST /api/client/statistics/video](#operation/VideoCampaignsSubmitRequest)<br>[POST /api/client/statistics/attribution](#operation/AttributionSubmitRequest)<br>[GET /api/client/statistics/campaign/media](#operation/MediaCampaignList)<br>[GET /api/client/statistics/expense](#operation/GetCampaignExpense)<br>[GET /api/client/statistics/daily](#operation/GetCampaignDailyStats)<br>[GET /api/client/statistics/campaign/product](#operation/ProductCampaignList)<br>[POST /api/client/statistic/orders/generate](#operation/SearchPromoOrdersReportSubmitRequest)<br>[POST /api/client/statistic/products/generate](#operation/SearchPromoProductsReportSubmitRequest)<br>[POST /api/client/statistics](#operation/SubmitRequest) | 已更新方法描述中的报告内容。 |\n\n## 2026年1月15日\n\n| 方法                                                                                         | 变更                                         |\n|-----------------------------------------------------------------------------------------------|---------------------------------------------------------|\n| [GET /api/client/campaign](#operation/ListCampaigns) <br> [POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2) <br> [POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign) <br> [POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign) <br> [PATCH /api/client/campaign/{campaignId}](#operation/PatchProductCampaign)| 更新了方法描述。 |\n| [POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2) <br> [PATCH /api/client/campaign/{campaignId}](#operation/PatchProductCampaign)                                                                | 已从方法请求中移除参数 `autoIncreasePercent`。                                                                                                                           |\n| [GET /api/client/campaign](#operation/ListCampaigns) <br> [POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign) <br> [POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign) | 已从方法响应中移除参数 `autoIncrease`。|\n|[POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2) | 移除了方法请求中参数 `TAKEOVER` 的值 `productAutopilotStrategy`。 |\n\n## 2025年11月18日\n\n| 方法                                                                                            | 变更             |\n|-----------------------------------------------------------------------------------------------|-------------------|\n| [GET /api/client/products_with_bonuses](#operation/ExternalCampaign_ListProductsWithBonuses2) | 新增了获取带有积分商品列表的方式。 |\n\n## 2025年11月10日\n\n| 方法                                                                             | 变更      |\n|--------------------------------------------------------------------------------|------------|\n| [GET /api/client/statistics/campaign/product](#operation/ProductCampaignList)  | 已更新方法的描述。  |\n\n## 2025年10月31日\n\n| 方法                                                                                                                                                                  | 变更                                                             |\n|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|\n| [GET /api/client/campaign](#operation/ListCampaigns)                                                                                                                | 在方法的响应中，为参数 `list.productAutopilotStrategy` 添加了值 `TOP_PROMOTION`。 |\n| [POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign)<br>[POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign) | 在方法的响应中，为参数 `productAutopilotStrategy` 添加了值 `TOP_PROMOTION`。      |\n| [POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)                                                                                   | 在方法的请求中，为参数 `productAutopilotStrategy` 添加了值 `TOP_PROMOTION`。      |\n| [POST /api/client/statistic/products/generate](#operation/SearchPromoProductsReportSubmitRequest)                                                                   | 已更新方法的描述。 |\n\n## 2025年10月23日\n\n| 方法                                                                                                                                                                   | 变更                                                  |\n|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|\n| [GET /api/client/campaign](#operation/ListCampaigns)                                                                                                                 | 自动增加参数`list.autoIncrease`即将废弃，我们将于2025年10月29日 停用该参数。   |\n| [POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)<br>[PATCH /api/client/campaign/{campaignId}](#operation/PatchProductCampaign)      | 自动增加参数`autoIncreasePercent`即将废弃，我们将于2025年10月29日 停用该参数。 |\n| [POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign)<br>[POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign) | 自动增加参数`autoIncrease`即将废弃，我们将于2025年10月29日 停用该参数。        |\n\n## 2025年10月17日\n\n| 方法                                                                                                                                                                 | 变更                                                                                                                  |\n|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|\n| [POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)                                                                                    | 已更新 `placement` 和 `productAutopilotStrategy`  参数在方法请求中的描述。                                                             |\n| [POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign)<br>[POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign) | 已更新 `paymentType`、 `advObjectType`,、`placement`  和 `productAutopilotStrategy` 参数在方法响应中的描述。                             |\n| [POST /external/api/dynamic_budget](#operation/CalculateDynamicBudget)                                                                                               | 已更新 `createCampaign.autopilotStrategy`,、`createCampaign.placement`  和 `updateCampaign.autopilotStrategy`  参数在方法请求中的描述。 |\n| [GET /api/client/campaign](#operation/ListCampaigns)                                                                                                                 | 已更新 `advObjectType`  参数在方法请求中的描述。<br>已更新  `list.advObjectType`、`list.placement` 和 `list.productAutopilotStrategy` 参数在方法响应中的描述。 |\n| [GET /api/client/campaign/{campaignId}/objects](#operation/ListCampaignObjects)<br>[POST /api/client/statistics](#operation/SubmitRequest)                           | 已更新方法的描述。                                                                                                              |\n| [GET /api/client/limits/list](#operation/GetLimitsList)                                                                                                              | 已更新方法的描述。<br>已更新  `limits.objectType`  和 `limit.placement`  参数在方法响应中的描述。                                               |\n| [POST /api/client/min/sku](#operation/ExternalCampaign_BidBySKU)                                                                                                     | 已更新 `paymentType`  参数在方法请求中的描述。                                                                                        |\n| [GET /api/client/statistics/campaign/product](#operation/ProductCampaignList)                                                                                        | 已更改方法名称。                                                                                                               |\n| —                                                                                                                                                                    | 已将 **模板和登上顶端** 板块名称更改为 [**按点击付费和特别投放**](#tag/Ad)。<br>已将 **模板和登上顶端中的商品** 模块名称更改为 [**在付费点击和特别广告中出售的商品**](#tag/Product)。  |\n\n## 2025年8月19日\n\n| 方法                                                                  | 变更                                        |\n|------------------------------------------------------------------------|---------------------------------------------------------|\n| [POST /external/api/dynamic_budget](#operation/CalculateDynamicBudget) | 方法即将过时，并将于2025年9月1日停用。 |\n\n## 2025年7月24日\n\n| 方法                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 变更                                                                                                                     |\n|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|\n| [GET /api/client/limits/list](#operation/GetLimitsList)                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 已更新方式响应中`limits.objectType`参数的描述。<br>已在方式回复中的`limits.placement`参数中添加了`CAMPAIGN_PLACEMENT_OVERTOP`值。<br>更新了方法描述。           |\n| [POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)                                                                                                                                                                                                                                                                                                                                                                                                                                          | 已更新 `productAutopilotStrategy`参数中的`TARGET_BIDS`值。                                                                         |\n| [POST /api/client/min/sku](#operation/ExternalCampaign_BidBySKU)                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 已更新方式请求中`paymentType`参数的描述。                                                                                               |\n| [GET /api/client/campaign](#operation/ListCampaigns)                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 已更新方式请求中`advObjectType`参数的描述。<br>已更新方式响应中`list.advObjectType`参数的描述。<br>已在方式响应中的`list.placement`参数中添加`PLACEMENT_OVERTOP`值。 |\n| [POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign)<br>[POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign)                                                                                                                                                                                                                                                                                                                                                       | 已更新方式响应中`advObjectType`参数的描述。                                                                                             |\n| [POST /api/client/campaign/search_promo/v2/products](#operation/ExternalCampaign_ListSearchPromoProductsV2)                                                                                                                                                                                                                                                                                                                                                                                                                | 已更新方式响应中的`products.isSearchPromoAvailable`和`products.searchPromoStatus`参数描述。<br>已更改方式名称。                                  |\n| [GET /api/client/statistics/{UUID}](#operation/StatisticsCheck)                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 已更新方式响应中`kind`参数的描述。                                                                                                      |\n| [GET /api/client/statistics/list](#operation/ListReports)<br>[/api/client/statistics/externallist](#operation/ListReportsExternal)                                                                                                                                                                                                                                                                                                                                                                                         | 已更新方式响应中`items.meta.kind`参数的描述。                                                                                           |\n| [GET /api/client/campaign/{campaignId}/objects](#operation/ListCampaignObjects)<br>[POST /api/client/statistics](#operation/SubmitRequest)                                                                                                                                                                                                                                                                                                                                                                                 | 已更改方式描述。                                                                                                                  |\n| [POST /api/client/statistic/orders/generate](#operation/SearchPromoOrdersReportSubmitRequest)<br>[POST /api/client/statistic/products/generate](#operation/SearchPromoProductsReportSubmitRequest)<br>[POST /api/client/campaign/search_promo/v2/bids/delete](#operation/ExternalCampaign_DeleteSearchPromoBidsV2)<br>[POST /api/client/search_promo/product/disable](#operation/ExternalCampaign_BatchDisableProducts)<br>[POST /api/client/search_promo/product/enable](#operation/ExternalCampaign_BatchEnableProducts) | 已更改方式名称。                                                                                                                  |\n| —                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 已将**搜索结果推广**部分的名称更改为[**按订单付款**](#tag/Search-Promo)。                                                                       |\n\n## 2025年7月17日\n\n| 方法                                                                    | 变更                   |\n|------------------------------------------------------------------------|-------------------------|\n| [POST /external/api/dynamic_budget](#operation/CalculateDynamicBudget) | 新了方法响应中`skuPrice`参数的描述。 |\n\n## 2025年6月10日\n\n| 方法                                                        | 变更                    |\n|----------------------------------------------------------------|-------------------------------------------------------|\n| [GET /api/client/campaign](#operation/ListCampaigns) | 在方法请求中添加了参数`page`和`pageSize`。 |\n\n## 2025年5月14日\n\n| 方法                                                        | 变更                    |\n|-----------------------------------------------------------|--------------------------|\n| [POST /api/min/sku](#operation/ExternalCampaign_BidBySKU) | 新增用于按 SKU 获取商品最低出价的新方法。  |\n\n## 2025年4月22日\n\n| 方法                                                                                                                                                                                                                               | 变更                                                                                                                                                               |\n|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| GET /api/client/campaign/{campaignId}/brand_shelf/{brandShelfId}                                                                                                                                                                 | 已从文档中删除方法。                                                                                                                                                          | \n| [POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2) <br> [PATCH /api/client/campaign/{campaignId}](#operation/PatchProductCampaign)                                                                | 添加了参数 `autoIncreasePercent` 到方法请求中 。                                                                                                                                |\n| [GET /api/client/campaign](#operation/ListCampaigns) <br> [POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign) <br> [POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign) | 添加了以下参数：`autoIncrease.autoIncreasePercent`，`autoIncrease.isAutoIncreased`，`autoIncrease.autoIncreasedBudget`，`autoIncrease.recommendedAutoIncreasePercent` 到方法响应中 。 |\n\n\n## 2025年4月4日\n\n| 方法                                                                            | 变更    |\n|-------------------------------------------------------------------------------|----------|\n| [GET /api/client/statistics/report](#operation/DownloadStatistics) | 更新了方法描述。<br> 修改了响应头和响应体的结构。| \n\n## 2025年4月1日\n\n| 方法                                                                            | 变更    |\n|-------------------------------------------------------------------------------|----------|\n| [GET /api/client/statistics/campaign/product](#operation/ProductCampaignList) | 更新了方法描述。 | \n\n## 2025年1月20日\n|方法     |变更   |\n|---|---|\n|[POST /external/api/dynamic_budget](#operation/CalculateDynamicBudget)       | 添加了用于计算广告活动最低预算的方法。       |\n\n## 2025年1月9日    \n\n|方法     |变更   |\n|---|---|\n|[POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)        |  更新了请求方法中的参数 `productAutopilotStrategy` 描述。       |\n|[PATCH /api/client/campaign/{campaignId}](#operation/PatchProductCampaign)       | 已从请求方法中删除参数 `autopilot.skuAddMode`。        |\n\n## 2024年11月28日\n\n|方法     |变更   |\n|---|---|\n|[GET /api/client/statistics/campaign/product](#operation/ProductCampaignList)       | 在报告中添加了周预算。       |\n\n\n## 2024年10月31日\n\n|方法     |变更   |\n|---|---|\n|[POST /api/client/campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)        | 已从请求方法中删除参数 `productCampaignMode`。       |\n| [GET /api/client/statistics/campaign/media](#operation/MediaCampaignList) <br> [GET /api/client/statistics/campaign/product](#operation/ProductCampaignList)       |更新了方法描述。          |\n\n## 2024年10月11日\n\n|方法     |变更   |\n|---|---|\n|[GET /api/client/statistics/externallist](#operation/ListReportsExternal)       |添加了通过API生成报告列表的方法。         |\n|[GET /api/client/statistics/list](#operation/ListReports)         |更新了方法描述。            |\n|[GET /api/client/campaign](#operation/ListCampaigns)        |更新了请求中的参数 `state` 和方法响应中的参数 `list.state` 的值 `CAMPAIGN_STATE_STOPPED`。       |\n|[POST /api/client/campaign/{campaignId}/activate](#operation/ActivateCampaign)<br> [POST /api/client/campaign/{campaignId}/deactivate](#operation/DeactivateCampaign)        | 更新了方法响应中的 `CAMPAIGN_STATE_STOPPED` 参数 `state` 的值。       |\n\n## 2024年9月26日\n\n|方法     |变更   |\n|---|---|\n|所有的方式       | 从2025年1月15日起，主机 `performance.ozon.ru` 不再工作。请转到新主机 `api-performance.ozon.ru`。        |\n\n## 2024年9月3日\n\n|方法     | 变更 |\n|---|-------|\n|GET /campaign/{campaignId}/products         | 方法过时了，已从文档中删除。请使用 [GET /campaign/{campaignId}/v2/products](#operation/GetProductsV2).       |\n|POST /campaign/{campaignId}/search_promo/products       |方法过时了，已从文档中删除。请使用[POST /campaign/search_promo/v2/products](#operation/ExternalCampaign_ListSearchPromoProductsV2)。       |\n|POST /campaign/{campaignId}/search_promo/bids/set       |方法过时了，已从文档中删除。请使用[POST /campaign/search_promo/v2/bids/set](#operation/ExternalCampaign_SetSearchPromoBidsV2)。       |\n|POST /campaign/cpc/product       |方法过时了，已从文档中删除。请使用[POST /campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)。       |\n|POST /campaign/{campaignId}/search_promo/bids/delete        |方法过时了，已从文档中删除。请使用[POST /campaign/search_promo/v2/bids/delete](#operation/ExternalCampaign_DeleteSearchPromoBidsV2)。       |\n|POST /campaign/cpm/v2/product <br/> PATCH /campaign/{campaignId}/brand_shelf/{brandShelfId}       |方法过时了，已从文件中删除。         |\n|[POST /campaign/search_promo/v2/bids/delete](#operation/ExternalCampaign_DeleteSearchPromoBidsV2) <br/> [POST /search_promo/product/enable](#operation/ExternalCampaign_BatchEnableProducts) <br/> [POST /search_promo/product/disable](#operation/ExternalCampaign_BatchDisableProducts) <br/> [POST /campaign/search_promo/v2/bids/delete](#operation/ExternalCampaign_DeleteSearchPromoBidsV2)       |在描述方法中添加了，一个请求中可以传递的最大商品数量为1000。       |\n\n## 2024年8月29日\n\n|方法     | 变更 |\n|---|-------|\n|[POST /campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)         |更新了请求方法中的参数 `productAutopilotStrategy` 描述。       |\n|[POST /campaign/{campaignId}/activate](#operation/ActivateCampaign) <br> [POST /campaign/{campaignId}/deactivate](#operation/DeactivateCampaign)       |在响应中更新了方法描述：`advObjectType`，`placement` 和 `productAutopilotStrategy`。       |\n|[GET /campaign](#operation/ListCampaigns)       |更新了请求方法中的参数 `advObjectType` 描述。       |\n|[GET /campaign/{campaignId}/objects](#operation/ListCampaignObjects)        |更新了方法描述。       |\n|[GET /limits/list](#operation/GetLimitsList)         |更新了响应中的方法和参数描述： `limits.objectType` 和 `limits.placement`。       |\n|[GET /statistics/campaign/product](#operation/ProductCampaignList) <br/> [GET /statistics/campaign/media](#operation/MediaCampaignList)       |更新了请求示例。       |\n|[模版和进入榜单](#tag/Ad) <br> [在模版中商品和榜单](#tag/Product)         |更新了部分名称。          |\n\n## 2024年8月15日\n\n|方法     | 变更 |\n|---|-------|\n| [POST /campaign/{campaignId}/products ](#operation/AddProducts) <br> [PUT /campaign/{campaignId}/products](#operation/UpdateProducts) <br> [GET /campaign/{campaignId}/v2/products](#operation/GetProductsV2) <br> [POST /campaign/search_promo/v2/products](#operation/ExternalCampaign_ListSearchPromoProductsV2) <br> [POST /search_promo/bids/recommendation](#operation/ExternalCampaign_GetProductsRecommendedBids) <br> [POST /campaign/search_promo/v2/bids/set](#operation/ExternalCampaign_SetSearchPromoBidsV2)       |在参数 `bid`、`bids` 和 `SKU*` 中明确指出，标价仅适用于订单或点击。       |\n\n## 2024年8月7日\n\n| 方法                                                                                                                                                                                    | 变更 |\n|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|\n| POST /campaign/{campaignId}/v2/activate <br> POST /campaign/{campaignId}/v2/deactivate                                                                                                |方法未使用，已从文档中删除。请使用 [POST /campaign/{campaignId}/activate](#operation/ActivateCampaign) 和 [POST /campaign/{campaignId}/deactivate](#operation/DeactivateCampaign).       |\n| [POST /campaign/{campaignId}/activate](#operation/ActivateCampaign) <br> [POST /campaign/{campaignId}/deactivate](#operation/DeactivateCampaign)                                      |删除了方法过时的标记。      |\n| [POST /campaign/search_promo/v2/bids/set](#operation/ExternalCampaign_SetSearchPromoBidsV2) <br> [POST /search_promo/product/enable](#operation/ExternalCampaign_BatchEnableProducts) |更新了方法的响应参数。            |\n| POST /campaign/{campaignId}/search_promo/bids/reset                                                                                                                                   |方法过时了，已从文档中删除。       |\n\n## 2024年7月22日\n\n| 方法                          | 变更 |\n|-----------------------------|-------|\n| POST /campaign/cpc/product <br> [POST /campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2) <br> [PATCH /campaign/{campaignId}](#operation/PatchProductCampaign) |在方法请求中添加了参数 `weeklyBudget`。       |\n| [POST /campaign/{campaignId}/v2/activate](#operation/ActivateCampaignV2) <br> [POST /campaign/{campaignId}/activate](#operation/ActivateCampaign) <br> [GET /campaign](#operation/ListCampaigns)                            | 在方法响应中添加了参数 `weeklyBudget`。      |\n\n## 2024年7月3日\n\n| 方法                                                                                                                                                | 变更 |\n|---------------------------------------------------------------------------------------------------------------------------------------------------|-------|\n| POST /campaign/cpm/product                                                                                                                        |方法过时了，已从文档中删除。       |\n| POST /campaign/cpm/v2/product                                                                                                                     |标记了方法过时。       |\n| [POST /campaign/{campaignId}/v2/activate](#operation/ActivateCampaignV2) <br> [POST /campaign/{campaignId}/activate](#operation/ActivateCampaign) |更新了方法描述。        |\n\n## 2024年7月1日\n\n\n| 方法                                                                                                                     | 变更             |\n|------------------------------------------------------------------------------------------------------------------------|-------------------|\n| GET\\_/campaign/{campaignId}/brand_shelf/{brandShelfId} <br> PATCH\\_/campaign/{campaignId}/brand_shelf/{brandShelfId}   | 品牌货架不工作了，标记了方法过时。 |\n| [GET\\_/limits/list](#operation/GetLimitsList) <br> [GET\\_/campaign/{campaignId}/objects](#operation/ListCampaignObjects) <br> [POST\\_/statistics](#operation/SubmitRequest) <br> [POST\\_/statistics/attribution](#operation/AttributionSubmitRequest)                                                                                                                       |从描述中删除了品牌货架的提及。                   |\n\n## 2024年5月23日\n\n| 方法                         | 变更 |\n|----------------------------|-------|\n|POST /campaign/cpm/v2/product <br> [POST /campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2) <br> [PATCH /campaign/{campaignId}](#operation/PatchProductCampaign )                             | 已从请求方法中删除参数 `expenseStrategy`。      |\n|[POST /campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)                            | 在请求方法中添加了参数 `productAutopilotStrategy` 的描述。      |\n|[GET /campaign](#operation/ListCampaigns)                             |在方法响应中补充了参数 `list.placement` 的描述。       |\n|POST /campaign/cpm/v2/product                             |在请求方法中添加了参数 `placement` 的描述。       |\n|[POST /campaign/{campaignId}/v2/activate](#operation/ActivateCampaignV2) <br> [POST /campaign/{campaignId}/v2/deactivate](#operation/DeactivateCampaignV2)                             | 在方法响应中添加了参数 `productAutopilotStrategy` 的描述。      |\n \n## 2024年4月26日\n\n| 方法                         | 变更 |\n|----------------------------|-------|\n| [POST /campaign/search_promo/v2/products](#operation/ExternalCampaign_ListSearchPromoProductsV2)                            |在方法响应中添加了参数 `products.isSearchPromoAvailable`。       |\n\n\n## 2024年4月22日\n\n| 方法                                                                                                       | 变更 |\n|----------------------------------------------------------------------------------------------------------|-------|\n| POST /campaign/cpm/v2/product  <br> [POST /campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2) | 在请求方法中：<br>• 删除了参数 `autopilot` ；<br>• 修改了参数 `productCampaignMode` 的默认值。      |\n| [POST /statistic/orders/generate](#operation/SearchPromoOrdersReportSubmitRequest)                       | 添加了用于获取在搜索结果中的推广订单报告的方法。      |\n| [POST /statistic/products/generate](#operation/SearchPromoProductsReportSubmitRequest)                   |添加了获取搜索中推广商品报告的方法。       |\n\n## 2024年3月19日\n\n| 方法                         | 变更 |\n|----------------------------|-------|\n|[GET /limits/list](#operation/GetLimitsList)                            | 添加了获取：<br>• “搜索推广”、“模版”和“品牌货架”中的最低和最高投注的方法；<br>• “搜索推广”和“模版”中的商品类别的最低投注。      |\n\n## 2024年3月5日\n\n\n| 方法                                                                                               | 变更 |\n|--------------------------------------------------------------------------------------------------|-------|\n| [PUT /campaign/{campaignId}/products](#operation/UpdateProducts)                                 |更新了方法描述。        |\n| [POST /campaign/search_promo/v2/products](#operation/ExternalCampaign_ListSearchPromoProductsV2) | 更新了请求中的参数 `page` 描述。                                                                                               |\n| —                                                                                                | 在[**请求限制**](#tag/Limits)部分，提高了每24小时账户和组织内的导出数量限制到2000。      |\n\n## 2024年2月22日\n\n\n| 方法                                                                                            | 变更                                                                                     |\n|-----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|\n| GET /campaign/{campaignId}/products                                                           | 标记了方法过时。请使用 [GET /campaign/{campaignId}/v2/products](#operation/GetProductsV2).           |\n| [POST /campaign/cpm/product](#operation/CreateProductCampaignCPM)                             | 标记了方法过时。                                                                                  |\n| POST /campaign/cpc/product                                                                    | 标记了方法过时。请使用 [POST /campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)。       |\n| [POST /campaign/{campaignId}/activate](#operation/ActivateCampaign)                           | 标记了方法过时。请使用 [POST /campaign/{campaignId}/v2/activate](#operation/ActivateCampaignV2)。     |\n| [POST /campaign/{campaignId}/deactivate](#operation/DeactivateCampaign)                       | 标记了方法过时。请使用 [POST /campaign/{campaignId}/v2/deactivate](#operation/DeactivateCampaignV2)。 |\n| [GET /campaign/{campaignId}/v2/products](#operation/GetProductsV2)                            | 添加了新的方法来获取活动商品列表。                                                                         |\n| POST /campaign/cpm/v2/product                                                                 | 添加了一个新的方法来创建付费展示的广告活动。                                                                    |\n| [POST /campaign/cpc/v2/product](#operation/CreateProductCampaignCPCV2)                        | 添加了一个新的方法来创建带点击付费的广告活动。                                                                   |\n| [POST /campaign/{campaignId}/v2/activate](#operation/ActivateCampaignV2)                      |  添加了新的激活活动的方法。                                                                                          |\n| [POST /campaign/{campaignId}/v2/deactivate](#operation/DeactivateCampaignV2)                  | 添加了新的关闭广告的方法。                                                                                                  |\n| [GET /campaign/{campaignId}/products/bids/competitive](#operation/GetProductsCompetitiveBids) |在模版中添加了一个新的方法来获取商品的竞争性报价。                                                                                           |\n\n## 2024年1月26日\n\n| 方法                         | 变更 |\n|----------------------------|-------|\n| POST /campaign/{campaignId}/search_promo/products <br> POST /campaign/{campaignId}/search_promo/bids/set <br> [POST /campaign/{campaignId}/search_promo/bids/reset](#operation/ResetSearchPromoBids) <br> POST /campaign/{campaignId}/search_promo/bids/delete                            | 标记了方法为过时的，使用新的方法来管理搜索结果的推广。       |\n|[POST /campaign/search_promo/v2/products](#operation/ExternalCampaign_ListSearchPromoProductsV2)                             |添加了从搜索结果中获取商品列表的方法。       |\n|[POST /search_promo/bids/recommendation](#operation/ExternalCampaign_GetProductsRecommendedBids)                              |添加了获取推荐投注的方法，用于搜索中的推广商品。       |\n|[POST /campaign/search_promo/v2/bids/set](#operation/ExternalCampaign_SetSearchPromoBidsV2)                            |添加了用于在搜索结果中设置商品推广的方法。       |\n|[POST /search_promo/product/enable](#operation/ExternalCampaign_BatchEnableProducts)                            |添加了用于在搜索结果中推广商品的方法。       |\n|[POST /search_promo/product/disable](#operation/ExternalCampaign_BatchDisableProducts)                            |添加了用于关闭商品在搜索中的推广的方法。       |\n|[POST /campaign/search_promo/v2/bids/delete](#operation/ExternalCampaign_DeleteSearchPromoBidsV2)                             |添加了从搜索结果中删除商品的方法。       |\n\n\n## 2024年1月17日\n\n\n| 方法                                                                                                | 变更 |\n|---------------------------------------------------------------------------------------------------|-------|\n|[POST /campaign/cpm/product](#operation/CreateProductCampaignCPM)<br>POST /campaign/cpc/product    |更新了方法描述。从方法请求中删除了参数 `productCampaignMode`。       |\n|[POST /campaign/{campaignId}/products](#operation/AddProducts)                                                                                                    |更新了方法描述。从请求方法中删除了参数 `phrases`、`groupId` 和 `stopWords`。       |\n|[PUT /campaign/{campaignId}/products](#operation/UpdateProducts)                                                                                                     |从请求方法中删除了参数 `phrases`、`groupId` 和 `stopWords`。       |\n|GET /campaign/{campaignId}/products                                                                                                   |从方法的响应中删除了参数 `phrases`、`groupId` 和 `stopWords`。        |\n|[GET /campaign/{campaignId}/objects](#operation/ListCampaignObjects)<br>[POST /statistics/attribution](#operation/AttributionSubmitRequest)<br>[POST /statistics](#operation/SubmitRequest)<br>[POST /statistics/video](#operation/VideoCampaignsSubmitRequest)                                                                                                   |更新了方法描述。         |\n|  —                                                                                                   |部分 **投注限制** 已过时，已从文件中删除。       |\n|GET /campaign/available<br>POST /campaign/{campaignId}/group<br>GET /campaign/{campaignId}/group/{groupId}<br>PUT /campaign/{campaignId}/group/{groupId}<br>POST /statistics/phrases                                                                                                    |方法过时了，已从文件中删除。       |\n|PUT /campaign/{campaignId}/period<br>PUT /campaign/{campaignId}/daily_budget                                                                                                   |方法过时了，已从文档中删除。请使用 [PATCH /campaign/{campaignId}](#operation/PatchProductCampaign).      |\n\n## 2023年12月21日\n\n| 方法                         | 变更 |\n|----------------------------|-------|\n|[POST /statistics/](#operation/SubmitRequest) <br> [POST /statistics/video](#operation/VideoCampaignsSubmitRequest) <br> [POST /statistics/attribution](#operation/AttributionSubmitRequest) <br> [GET /statistics/campaign/media](#operation/MediaCampaignList) <br> [GET /statistics/campaign/product](#operation/ProductCampaignList) <br> [GET /statistics/daily](#operation/GetCampaignDailyStats) <br> [GET /statistics/expense](#operation/GetCampaignExpense)                            |在描述中添加了关于JSON格式报告的信息。       |\n\n## 2023年10月20日\n\n| 方法                                        | 变更 |\n|-------------------------------------------|-------|\n| —                                         |更新了部分标题： «商品广告活动» 在 [**模版**](#tag/Ad) 和 «商品在广告活动中» 在 [**商品模版**](#tag/Product)。      |\n| [GET /campaign](#operation/ListCampaigns) |更新了请求方法中的参数 `advObjectType` 描述。添加了方法响应中的参数 `PaymentType`。       |\n\n## 2023年4月10日\n\n| 方法 | 变更 |\n|----|-------|\n|[POST /statistics/phrases](#operation/PhrasesSubmitRequest)    |从方法请求中删除了参数 `groupBy`。       |\n\n## 2022年11月3日\n\n| 方法 | 变更 |\n|----|------|\n| —  |更新了[竞价限制](#tag/LimitsBids)并为“商品和类目”中的广告添加了“点击”支付方式。      |\n|POST /campaign/cpc/product    |添加了创建付费点击广告活动的方法。      |\n|[POST /campaign/{campaignId}/products](#operation/AddProducts)     |在方法描述中添加了关于在付费点击广告活动中添加商品的建议。       |\n|[PUT /campaign/{campaignId}/daily_budget](#operation/UpdateProductCampaignDailyBudget)   |从请求方法中删除了参数 `fromDate` 和 `toDate`。       |\n|[PUT /campaign/{campaignId}/period](#operation/UpdateProductCampaignPeriod)   |从请求方法中删除了参数 `dailyBudget`。       |\n|[PATCH /campaign/{campaignId}](#operation/PatchProductCampaign)      |在方法请求中添加了参数 `autopilot` 来传递启用自动策略的广告活动信息。 <br> 修改了参数 `budget` 的描述。       |\n|[POST /campaign/cpm/product](#operation/CreateProductCampaignCPM)       |在方法请求中添加了参数 `autopilot.skuAddMode` 来启用自动将商品添加到活动中。 <br> 方法请求中更新了参数 `toDate` 的描述。 <br> 方法请求中添加了参数 `budget`。       |\n|[GET /campaign](#operation/ListCampaigns)         |在方法中添加了一个字段 `autopilot.skuAddMode` 来获取关于自动添加商品到活动的信息。        |\n\n## 2022年9月5日\n\n| 方法 | 变更 |\n|----|-------|\n|[GET /campaign](#operation/ListCampaigns)<br>[POST /campaign/{campaignId}/activate](#operation/ActivateCampaign)<br>[POST /campaign/{campaignId}/deactivate](#operation/DeactivateCampaign)    | 在方法响应中添加了字段，用于提供关于自动策略的信息 `productAutopilotStrategy` 和 `autopilot`。       |\n|[POST /campaign/cpm/product](#operation/CreateProductCampaignCPM)        |添加了参数 `productAutopilotStrategy` 和 `autopilot` 来传递关于自动策略的信息到方法请求中。       |\n|[POST /campaign/{campaignId}/products](#operation/AddProducts)<br>[PUT /campaign/{campaignId}/products](#operation/UpdateProducts)            |在方法描述中添加了在启用自动策略的广告活动中工作时的限制。         |\n\n## 2022年9月2日\n\n| 方法                                     | 变更 |\n|-----------------------------------------|-------|\n| GET /campaign/{campaignId}/products     |添加了字段： <br>• `categories.bid` — 类别的赌注，<br>• `categories.categoryId` — 类别的标识符，<br>• `title` — 商品名称。       |\n\n## 2022年8月30日\n\n| 方法                                                                  | 变更 |\n|---------------------------------------------------------------------|-------|\n| [POST /statistics/video](#operation/VideoCampaignsSubmitRequest)    | 添加了获取视频横幅广告展示统计的方法。      |\n\n## 2022年8月22日\n\n| 方法                                                         | 变更 |\n|------------------------------------------------------------|-------|\n| [GET /organisation/vendor_tag](#operation/GetVendorTag)    |添加了用于获取组织标志的方法，以便用于外部广告活动。       |\n\n\n## 2022年8月11日\n\n| 方法                                                         | 变更 |\n|------------------------------------------------------------|-------|\n| [GET /statistics/report](#operation/DownloadStatistics)    |添加了方法响应中的错误UUID描述。       |\n\n## 2022年8月10日\n\n| 方法 | 变更 |\n|----|-------|\n|[GET /statistics/{UUID}](#operation/StatisticsCheck) <br> [GET /statistics/list](#operation/ListReports)    | 在方法的响应中添加了字段 `kind` 的值。      |\n\n## 2022年8月5日\n\n| 方法                                                                 | 变更 |\n|--------------------------------------------------------------------|-------|\n| [GET /campaign/{campaignId}/group/{groupId}](#operation/GetGroup)  | 添加了获取群组信息的方法。      |\n\n## 2022年7月18日\n\n| 方法 | 变更 |\n|----|-------|\n| —  |更新了在[限制下注](#tag/LimitsBids)部分的最大推广搜索排名。       |\n\n## 2022年7月15日\n\n| 方法 | 变更 |\n|----|-------|\n|[POST /campaign/cpm/product](#operation/CreateProductCampaignCPM)    |更新了请求中的参数 `productCampaignMode` 描述。       |\n|[POST /campaign/{campaignId}/products](#operation/AddProducts)      |更新了方法描述。       |\n\n## 2022年7月14日\n\n| 方法 | 变更 |\n|----|-------|\n|[POST /campaign/cpm/product](#operation/CreateProductCampaignCPM)    |更新了方法描述。添加了参数 `productCampaignMode` 并更新了请求中的 `placement` 参数描述。       |\n|[POST /campaign/{campaignId}/products](#operation/AddProducts)    |更新了方法描述。更新了请求方法中的参数 `bids.bid` 描述。       |\n|[PUT /campaign/{campaignId}/products](#operation/UpdateProducts)     | 更新了方法描述。      |\n|[GET /campaign](#operation/ListCampaigns)    |更新了请求中的参数 `advObjectType` 描述。 在方法响应中添加了 `productCampaignMode` 字段。       |\n|[POST /campaign/{campaignId}/group](#operation/CreateGroup) <br> [PUT /campaign/{campaignId}/group/{groupId}](#operation/UpdateGroup) <br> [POST /statistics/phrases](#operation/PhrasesSubmitRequest)    | 更新了方法描述。      |\n|[GET /campaign/available](#operation/GetAvailableProductCampaignModes)    |添加了获取可用广告活动模式的方法。       |\n\n## 2022年7月11日\n\n| 方法 | 变更 |\n|----|-------|\n| —  | 添加了[投注限制](#tag/LimitsBids)部分。      |\n\n## 2022年7月8日\n\n| 方法 | 变更 |\n|----|-------|\n|GET /campaign/{campaignId}/brand_shelf/{brandShelfId}    |在方法响应中添加了字段 `targetDeepLink` 和 `bids.bidMicros`。 在响应中明确了字段 `image.format` 的返回值。 更新了响应中的字段 `bids.bid` 和 `searchBids.bid` 的描述。       |\n|PATCH /campaign/{campaignId}/brand_shelf/{brandShelfId}   |从方法请求中删除了字段 `searchBids.relevanceStatus`。       |\n\n## 2022年7月7日\n\n| 方法 | 变更 |\n|----|-------|\n|[POST /vendors/statistics](#operation/VendorStatisticsSubmitRequest)    |添加了用于启动外部流量分析报告生成的方法。       |\n|[GET /vendors/statistics/list](#operation/VendorStatisticsListReports)    |添加了获取所有所需报告的外部流量分析方法。       |\n|[GET /vendors/statistics/{UUID}](#operation/VendorStatisticsCheck)    |添加了获取外部流量分析报告信息的方法。       |\n\n\n## 2022年7月5日\n\n| 方法 | 变更 |\n|----|-------|\n|POST /campaign/{campaignId}/search_promo/products<br/><br/>POST /campaign/{campaignId}/search_promo/bids/delete    |更新了方法描述。       |\n\n## 2022年7月4日\n\n| 方法 | 变更 |\n|----|-------|\n|[POST /statistics](#operation/SubmitRequest) <br> [POST /statistics/phrases](#operation/PhrasesSubmitRequest) <br> [POST /statistics/attribution](#operation/AttributionSubmitRequest)    |已更改请求参数中的最大报告期限 `to` 和 `from`。       |\n\n## 2022年6月30日\n\n| 方法 | 变更 |\n|----|-------|\n|[GET /statistics/{UUID}](#operation/StatisticsCheck)     |在响应中添加了 `kind` 字段和示例方法。       |\n|[POST /statistics](#operation/SubmitRequest)    |在响应中添加了字段 `vendor` 和示例方法。       |\n\n## 2022年6月28日\n\n| 方法                         | 变更 |\n|----------------------------|-------|\n| POST /campaign/cpc/product | 方法过时了，已从文档中删除。      |\n| —                          |现在可以在卖家个人中心获取 `client_id` 和 `client_secret`。我们在[文档](#tag/Intro)中添加了说明。       |\n\n## 2022年6月27日\n\n| 方法                         | 变更 |\n|----------------------------|-------|\n|[PUT /campaign/{campaignId}/daily_budget](#operation/UpdateProductCampaignDailyBudget)                            |已修正请求中的参数 `dailyBudget` 描述。       |\n\n## 2022年6月2日\n\n| 方法 | 变更 |\n|----|-------|\n| —  |添加了[请求限制](#tag/Limits)部分。       |\n\n## 2021年9月27日\n\n| 方法   | 变更 |\n|------|-------|\n| —    |添加了[方法列表](#tag/List)部分。        |\n| —    |将“开始工作”部分名称更改为“[介绍](#operation/ListCampaigns)”。       |\n|      | 将“获取令牌”部分名称更改为“[如何获取API-密钥](#tag/Token)”。      |\n\n\n"
+    },
+    {
+      "name": "Campaign",
+      "x-displayName": "活动和推广对象"
+    },
+    {
+      "name": "Statistics",
+      "x-displayName": "统计数据",
+      "description": "<aside class=\"notice\">\n广告中心报告中的日期按莫斯科时间进行分类。\n</aside>\n\n要获取广告活动报告:\n1. 发送请求生成报告。\n2. 获取生成的UUID请求报告。"
+    },
+    {
+      "name": "Ad",
+      "x-displayName": "按点击付费和特别投放"
+    },
+    {
+      "name": "Product",
+      "x-displayName": "按点击付费中的商品"
+    },
+    {
+      "name": "Search-Promo",
+      "x-displayName": "按订单付款"
+    },
+    {
+      "name": "Vendor",
+      "x-displayName": "外部流量分析"
+    }
+  ],
+  "paths": {
+    "/api/client/campaign": {
+      "get": {
+        "tags": [
+          "Campaign"
+        ],
+        "summary": "广告活动列表",
+        "operationId": "ListCampaigns",
+        "parameters": [
+          {
+            "name": "campaignIds",
+            "description": "需要输出信息的广告标识符列表。\n\n如果传递值，则回复将包含所指明的活动的信息\n在字段 `campaigns` 中。如果字段为空，信息将传递给所有活动。\n",
+            "in": "query",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uint64"
+              }
+            }
+          },
+          {
+            "name": "advObjectType",
+            "description": "广告活动类型：\n\n- `SKU` — 按点击付费；\n- `SEARCH_PROMO` — 按订单付款。\n\n[了解更多关于广告活动类型](https://seller-edu.ozon.ru/docs/advertising/reklamnye-kampanii.html)\n",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "description": "广告活动状态。\n\n可能的值：\n- `CAMPAIGN_STATE_RUNNING` — 活跃的活动；\n- `CAMPAIGN_STATE_PLANNED` — 计划中的活动，时间还没有到；\n- `CAMPAIGN_STATE_STOPPED` — 由于预算不足而暂停的活动；\n- `CAMPAIGN_STATE_INACTIVE` — 由于拥有者停止而停止的活动；\n- `CAMPAIGN_STATE_ARCHIVED` — 归档的活动；\n- `CAMPAIGN_STATE_MODERATION_DRAFT` — 已编辑的未发送到审核的活动；\n- `CAMPAIGN_STATE_MODERATION_IN_PROGRESS` — 已提交审核的广告活动；\n- `CAMPAIGN_STATE_MODERATION_FAILED` — 未通过审核的广告活动；\n- `CAMPAIGN_STATE_FINISHED` — 该活动已结束，结束日期已过去，无法更改此活动，可以只能克隆或创建新的一份。\n",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CAMPAIGN_STATE_UNKNOWN",
+                "CAMPAIGN_STATE_RUNNING",
+                "CAMPAIGN_STATE_PLANNED",
+                "CAMPAIGN_STATE_STOPPED",
+                "CAMPAIGN_STATE_INACTIVE",
+                "CAMPAIGN_STATE_ARCHIVED",
+                "CAMPAIGN_STATE_MODERATION_DRAFT",
+                "CAMPAIGN_STATE_MODERATION_IN_PROGRESS",
+                "CAMPAIGN_STATE_MODERATION_FAILED",
+                "CAMPAIGN_STATE_FINISHED"
+              ],
+              "default": "CAMPAIGN_STATE_UNKNOWN"
+            }
+          },
+          {
+            "name": "page",
+            "description": "页码。分页从1开始。",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "pageSize",
+            "description": "页面尺寸。",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "所有广告活动的列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignCampaignsList"
+                },
+                "examples": {
+                  "横幅营销活动": {
+                    "value": {
+                      "list": {
+                        "id": 48949,
+                        "paymentType": "CPM",
+                        "title": "横幅营销活动",
+                        "state": "CAMPAIGN_STATE_RUNNING",
+                        "advObjectType": "BANNER",
+                        "fromDate": "2019-10-07",
+                        "toDate": "2021-10-07",
+                        "dailyBudget": 504000000,
+                        "placement": [
+                          "PLACEMENT_PDP"
+                        ],
+                        "budget": 50000000,
+                        "createdAt": "2019-10-07T06:28:44.055042Z",
+                        "updatedAt": "2020-10-01T06:28:44.055042Z",
+                        "productAutopilotStrategy": "NO_AUTO_STRATEGY",
+                        "productCampaignMode": "PRODUCT_CAMPAIGN_MODE_AUTO"
+                      }
+                    }
+                  },
+                  "Продвижение товаров": {
+                    "value": {
+                      "list": {
+                        "id": 48852,
+                        "paymentType": "CPO",
+                        "title": "商品广告 №1",
+                        "state": "CAMPAIGN_STATE_INACTIVE",
+                        "advObjectType": "SKU",
+                        "fromDate": "2019-10-07",
+                        "toDate": "2021-10-07",
+                        "dailyBudget": 202000000,
+                        "placement": [
+                          "PLACEMENT_PDP"
+                        ],
+                        "budget": 40000000,
+                        "createdAt": "2019-10-07T06:28:44.055042Z",
+                        "updatedAt": "2020-10-01T06:28:44.055042Z",
+                        "productAutopilotStrategy": "NO_AUTO_STRATEGY",
+                        "productCampaignMode": "PRODUCT_CAMPAIGN_MODE_AUTO"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/campaign?campaignIds=52374&advObjectType=SKU&state=CAMPAIGN_STATE_UNKNOWN HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nHost: api-performance.ozon.ru:443\nContent-Type: application/json\nAccept: application/json\n"
+          }
+        ]
+      }
+    },
+    "/api/client/campaign/{campaignId}/objects": {
+      "get": {
+        "tags": [
+          "Campaign"
+        ],
+        "summary": "活动中的推广对象列表",
+        "description": "\n用于获取 “按点击付费”、“横幅” 和 “视频横幅” 活动中的推广对象列表的方法。\n\n要获取“按订单付款”活动中的商品，请使用 [POST/campaign/search_promo/v2/products](#operation/ExternalCampaign_ListSearchPromoProductsV2)。\n",
+        "operationId": "ListCampaignObjects",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "description": "广告活动标识符。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "广告活动中的推广对象列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignCampaignObjectsList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/campaign/48852/objects HTTP/1.1\nHost: api-performance.ozon.ru:443\nContent-Type: application/json\nAccept: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4"
+          }
+        ]
+      }
+    },
+    "/api/client/limits/list": {
+      "get": {
+        "tags": [
+          "Campaign"
+        ],
+        "summary": "推广工具的投注限额",
+        "description": "\n您可以通过工具获取投注限制：\n- 按订单付款：\n  - 工具的最低和最高押金。\n  - 某些商品类目的最低订单金额。\n- 特别投放和按点击付费：\n  - 每点击的最低和最高佣金。\n  - 某些商品类目的最低点击佣金。\n",
+        "operationId": "GetLimitsList",
+        "responses": {
+          "200": {
+            "description": "投注限制",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignListLimitsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/min/sku": {
+      "post": {
+        "tags": [
+          "Campaign"
+        ],
+        "operationId": "ExternalCampaign_BidBySKU",
+        "summary": "按 SKU 获取商品最低出价",
+        "description": "使用该方法，可查询一个或多个 SKU 商品的最低出价。",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extcampaignBidBySKURequest"
+        },
+        "responses": {
+          "200": {
+            "description": "最低出价金额",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignBidBySKUResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/products_with_bonuses": {
+      "get": {
+        "tags": [
+          "Campaign"
+        ],
+        "operationId": "ExternalCampaign_ListProductsWithBonuses2",
+        "summary": "带有积分的商品列表",
+        "description": "返回已发放积分的商品SKU列表。\n\n点击商品时，优先消耗该商品所发放的积分。如果积分用完，则使用活动的总预算。\n",
+        "responses": {
+          "200": {
+            "description": "带有积分的商品列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignListProductsWithBonusesResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/statistics": {
+      "post": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "广告活动统计",
+        "description": "\n在请求中使用字段 `from` 和 `to` 或 `dateFrom` 和 `dateTo` 指定时间段。如果填写了所有字段\n四个字段，回复将包含字段 `dateFrom` 和 `dateTo` 的暂时时间段的统计数据。\n\n性能API异步。因此，请求结果将不是报告本身，而是唯一标识符\n已发送的请求，可以用于[检查报告生成状态](#operation/StatisticsCheck)和[下载报告](#operation/DownloadStatistics)。\n报告格式 — CSV。 \n\n档案包含不同类型广告的报告示例：\n\n- [横幅和原生横幅](https://cdn.ozone.ru/s3/ozon-disk-api/techdoc/performance/api/report-examples/banner_example_1766144809.zip)\n- [视频横幅](https://cdn.ozone.ru/s3/ozon-disk-api/techdoc/performance/api/report-examples/videobanner_1705412072.zip)\n- [按点击付费](https://cdn.ozone.ru/s3/ozon-disk-api/techdoc/performance/api/report-examples/stencils_1705412070.zip)\n\n要请求JSON格式的报告，请在方法地址中添加 `/json` 并发送请求到 `/api/client/statistics/json` 地址。\n",
+        "operationId": "SubmitRequest",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extstatStatisticsRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "活动统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsRequestID"
+                },
+                "example": {
+                  "UUID": "0c159c60-ab92-46d9-9a6b-d225dbf5c7b1",
+                  "vendor": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "POST /api/client/statistics HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json\n\n{\n    \"campaigns\":[\"48852\"],\n    \"from\":\"2020-06-01T00:00:00.000Z\",\n    \"to\":\"2020-07-20T00:00:00.000Z\",\n    \"dateFrom\":\"2020-06-01\",\n    \"dateTo\":\"2020-07-20\",\n    \"groupBy\":\"DATE\"\n}"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/video": {
+      "post": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "视频横幅展示统计",
+        "description": "\n在请求中使用字段 `dateFrom` 和 `dateTo` 指定时间段。\n\n性能API异步。因此，请求结果将不是报告本身，而是唯一标识符\n已发送的请求，可以用于[检查报告生成状态](#operation/StatisticsCheck)和[下载报告](#operation/DownloadStatistics)。\n报告格式 — CSV。 \n\n报告包含：\n- 名称；\n- 广告活动标识符；\n- 报告周期；\n- 广告条纹标识符；\n- 展示；\n- 点击；\n- 覆盖范围；\n- CTR;\n- 可见销售量；\n- 容积检查：25%，50%，75%和100%；\n- 检验比例：25%，50%，75%和100%；\n- 声音播放的观看次数；\n- 订单；\n- 费用。\n\n要请求JSON格式的报告，请在方法地址中添加 `/json` 并发送请求到 `/api/client/statistics/video/json` 地址。\n",
+        "operationId": "VideoCampaignsSubmitRequest",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extstatStatisticsVideobannerRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "视频横幅广告的统计数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsRequestID"
+                },
+                "example": {
+                  "UUID": "0c159c60-ab92-46d9-9a6b-d225dbf5c7b1",
+                  "vendor": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "POST /api/client/statistics/video HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json\n\n{\n    \"campaigns\":[\"48852\"],\n    \"dateFrom\":\"2020-06-01\",\n    \"dateTo\":\"2020-07-20\",\n    \"groupBy\":\"NO_GROUP_BY\"\n}"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/attribution": {
+      "post": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "订单报告",
+        "description": "\n获取广告牌订单报告的方法。\n\n在请求中使用字段 `from` 和 `to` 或 `dateFrom` 和 `dateTo` 指定时间段。如果填写了所有字段\n   四个字段，回复将包含字段 `dateFrom` 和 `dateTo` 的暂时时间段的统计数据。\n\n\n性能API异步。因此，请求结果将不是报告本身，而是唯一标识符\n已发送的请求，可以用于[检查报告生成状态](#operation/StatisticsCheck)和[下载报告](#operation/DownloadStatistics)。\n报告格式 — CSV。 \n报告包含：\n\n- 名称;\n- 广告活动标识符;\n- 报告周期;\n- SKU;\n- 商品名称;\n- 订单数量;\n- 收入（卢布);\n- 模型订单数量;\n- 模型订单收入;\n- 归因类型。\n\n要请求JSON格式的报告，请在方法地址中添加 `/json` 并发送请求到 `/api/client/statistics/attribution/json` 地址。\n",
+        "operationId": "AttributionSubmitRequest",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extstatStatisticsRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "订单报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsRequestID"
+                },
+                "example": {
+                  "UUID": "0c159c60-ab92-46d9-9a6b-d225dbf5c7b1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "POST /api/client/statistics/attribution HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json\n\n{\n    \"campaigns\":[\"48852\"],\n    \"from\":\"2020-06-01T00:00:00.000Z\",\n    \"to\":\"2020-07-20T00:00:00.000Z\",\n    \"dateFrom\":\"2020-06-01\",\n    \"dateTo\":\"2020-07-20\",\n    \"groupBy\":\"DATE\"\n}"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/{UUID}": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "报告状态",
+        "operationId": "StatisticsCheck",
+        "parameters": [
+          {
+            "name": "UUID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "请求唯一标识符。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "报告状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsResponse"
+                },
+                "example": {
+                  "UUID": "0c159c60-ab92-46d9-9a6b-d225dbf5c7b1",
+                  "state": "OK",
+                  "createdAt": "2020-03-23T19:30:58.264653Z",
+                  "updatedAt": "2020-03-23T19:30:58.689007Z",
+                  "request": {
+                    "attributionDays": "",
+                    "campaignId": 1,
+                    "campaigns": [
+                      12558
+                    ],
+                    "dateFrom": "2020-03-01",
+                    "dateTo": "2020-03-20",
+                    "from": "2020-03-01T00:00:00Z",
+                    "groupBy": "DATE",
+                    "objects": [],
+                    "to": "2020-03-20T00:00:00Z"
+                  },
+                  "link": "string",
+                  "kind": "STATS"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/statistics/0c159c60-ab92-46d9-9a6b-d225dbf5c7b1 HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/list": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "通过界面生成的报告列表",
+        "description": "\n通过广告管理界面生成的报告列表获取方法。\n",
+        "operationId": "ListReports",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "页面编号。"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "页面尺寸。"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "报告列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsReportsList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/statistics/list?page=1&pageSize=100 HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/externallist": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "通过API生成的报告列表",
+        "operationId": "ListReportsExternal",
+        "description": "\n通过API服务账号生成的报告列表获取方法。\n",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "页面编号。"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "页面尺寸。"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "报告列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsReportsList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/statistics/list?page=1&pageSize=100 HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/report": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "获取报告",
+        "description": "\n请求成功后，使用[“报告状态”](#operation/StatisticsCheck)方法时，下载 CSV 或 ZIP 格式报告的链接将出现在`link` 字段中。\n\n报告格式在响应头中的`content-type` 字段中指定。 格式取决于原始请求中 `campaigns` 字段包含的活动数量：\n- CSV — 如果列表中只有一个活动。\n- ZIP 压缩包 — 如果列表中有多个广告活动。每个文件对应列表中的一个广告活动。文件名格式为\n`<广告活动标识符>。csv`。\n",
+        "operationId": "DownloadStatistics",
+        "parameters": [
+          {
+            "name": "UUID",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "请求唯一标识符。"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "报告。",
+            "headers": {
+              "content-type": {
+                "schema": {
+                  "type": "string",
+                  "example": "text/csv; charset=UTF-8"
+                }
+              },
+              "x-o3-trace-id": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "description": "报告行。"
+                },
+                "example": "; Кампания по продвижению товаров № 13883040, период 03.01.2025-03.01.2025 \nsku; Название товара; Цена товара, Р; Показы; Клики; CTR (%); В корзину; Ср. цена клика, г;Ср. цена 1000 показов, Р; Расход, Р, с НДС; Заказы; Выручка, Р; Заказы модели; Выручка с заказов модели, Р;ДРР, %: Дата добавления \nBcero;;;0;0;0,00; 0; 0,00;0,00; 0,00; 0; 0,00;0;0,00;0,00"
+              }
+            }
+          },
+          "404": {
+            "description": "不正确的UUID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                },
+                "example": {
+                  "error": "report not found"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/statistics/report?UUID=0c159c60-ab92-46d9-9a6b-d225dbf5c7b1 HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/campaign/media": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "媒体活动统计",
+        "description": "\n在请求中使用字段 `from` 和 `to` 或 `dateFrom` 和 `dateTo` 指定时间段。如果填写了所有字段\n四个字段，回复将包含字段 `dateFrom` 和 `dateTo` 的暂时时间段的统计数据。\n\n报告格式 — CSV。 \n\n要请求JSON格式的报告，请在方法地址中添加 `/json` 并发送请求到 `/api/client/statistics/campaign/media/json` 地址。\n\n报告包含：\n- 广告活动标识符；\n- 促销活动名称；\n- 活动格式；\n- 活动状态；\n- 每日预算（卢布）；\n- 预算以卢布为单位；\n- 费用（卢布）；\n- 展示；\n- 点击；\n- 平均价格每1000次展示为卢布；\n- 点击率（点击次数与展示次数的比例）；\n- 平均点击价格（卢布）；\n- 订单以件为单位；\n- 浏览后下单数（件）；\n- 浏览后订单金额；\n- 广告收入率；\n- 订单总金额；\n- 支付类型；\n- 预算类型。\n",
+        "operationId": "MediaCampaignList",
+        "parameters": [
+          {
+            "name": "campaignIds",
+            "in": "query",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "description": "需要准备报告的广告活动标识符列表。\n\n如果字段填写了，报告中只会显示指定的广告活动的统计数据。如果字段为空，回复中会显示\n指定时间段内所有活动的统计数据。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "报告周期的起始日期，以RFC3339格式。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "报告周期的最终日期，以RFC3339格式。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n\n非必填字段。\n"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "媒体活动统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsReport"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/statistics/campaign/media?dateFrom=2024-08-01&dateTo=2024-08-01&campaignIds=11037395&campaignIds=11037396 HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/campaign/product": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "按点击付费和特别投放活动统计",
+        "description": "\n<aside class=\"notice\"> 不消耗Performance API的限额。 </aside>\n\n在请求中使用字段 `from` 和 `to` 或 `dateFrom` 和 `dateTo` 指定时间段。如果填写了所有字段四个字段，回复将包含字段 `dateFrom` 和 `dateTo` 的暂时时间段的统计数据。\n\n报告格式 — CSV。 \n\n要请求JSON格式的报告，请在方法地址中添加 `/json` 并发送请求到 `/api/client/statistics/campaign/product/json` 地址。\n\n报告包含：\n- 广告活动标识符；\n- 促销活动名称；\n- 对象类型；\n- 活动状态；\n- 一周预算（卢布）；\n- 预算（卢布）；\n- 费用（卢布）；\n- 展示；\n- 点击；\n- 商品添加至购物车的次数；\n- 点击率（点击次数与展示次数的比例）；\n- 平均点击价格（卢布）；\n- 订单以件为单位；\n- 订单以卢布支付；\n- 广告费用占比（广告收入率）；\n- 推广类型；\n- 特别投放的位置。\n",
+        "operationId": "ProductCampaignList",
+        "parameters": [
+          {
+            "name": "campaignIds",
+            "in": "query",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "description": "需要准备报告的广告活动标识符列表。\n\n如果字段填写了，报告中只会显示指定的广告活动的统计数据。如果字段为空，回复中会显示\n指定时间段内所有活动的统计数据。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "报告周期的起始日期，以RFC3339格式。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "报告周期的最终日期，以RFC3339格式。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n\n非必填字段。\n"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "商品活动统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsReport"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/statistics/campaign/product?dateFrom=2024-08-01&dateTo=2024-08-07&campaignIds=11037395&campaignIds=11037396 HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/expense": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "广告活动费用统计",
+        "description": "\n如果请求中没有指定字段 `dateFrom` 和 `dateTo` 的值，则响应将包含过去7天的统计数据。\n\n报告格式 — CSV。 \n\n要请求JSON格式的报告，请在方法地址中添加 `/json` 并发送请求到 `/api/client/statistics/expense/json` 地址。\n报告包含：\n- 广告活动标识符；\n- 日期；\n- 名称；\n- 开支；\n- 用户账户支出；\n- 使用积分。\n",
+        "operationId": "GetCampaignExpense",
+        "parameters": [
+          {
+            "name": "campaignIds",
+            "in": "query",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "description": "需要准备报告的广告活动标识符列表。\n\n如果字段填写了，报告中只会显示指定的广告活动的统计数据。如果字段为空，回复中会显示\n指定时间段内所有活动的统计数据。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n\n非必填字段。\n"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "广告消耗统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsReport"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/statistics/expense?campaigns=48852&dateFrom=2019-02-10&dateTo=2020-02-10 HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json"
+          }
+        ]
+      }
+    },
+    "/api/client/statistics/daily": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "每日广告统计",
+        "description": "\n如果请求中没有指定字段 `dateFrom` 和 `dateTo` 的值，则响应将包含过去7天的统计数据。\n\n报告格式 — CSV。 \n\n要请求JSON格式的报告，请在方法地址中添加 `/json` 并发送请求到 `/api/client/statistics/daily/json` 地址。\n\n报告包含：\n- 广告活动标识符;\n- 促销活动名称;\n- 日期;\n- 展示;\n- 点击;\n- 费用（卢布);\n- 订单以件为单位;\n- 订单以卢布支付。\n",
+        "operationId": "GetCampaignDailyStats",
+        "parameters": [
+          {
+            "name": "campaignIds",
+            "in": "query",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uint64"
+              },
+              "description": "需要准备报告的广告活动标识符列表。\n\n如果字段填写了，报告中只会显示指定的广告活动的统计数据。如果字段为空，回复中会显示\n指定时间段内所有活动的统计数据。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n\n非必填字段。\n"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n\n非必填字段。\n"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "每日广告统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsReport"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/statistics/daily?campaigns=48852&dateFrom=2019-02-10&dateTo=2020-02-10 HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json"
+          }
+        ]
+      }
+    },
+    "/api/client/statistic/orders/generate": {
+      "post": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "获取按订单付费订单报告——所选商品",
+        "description": "\n在请求参数中，`from` 和 `to` 请填写时间段。\n\n性能API异步。\n因此，请求结果将不是报告本身，而是发送请求的唯一标识符，可以通过此标识符[检查报告生成状态](#operation/StatisticsCheck)和[下载CSV格式的报告](#operation/DownloadStatistics)。\n\n要请求JSON格式的报告，请将方法地址中的地址添加为： `/api/client/statistic/orders/generate/json`。\n  \n报告包含：\n- 报告周期；\n- 日期；\n- 订单编号；\n- 订单号；\n- SKU;\n- 推广商品的SKU；\n- 货号；\n- 名称；\n- 订单来源；\n- 数量；\n- 价格，₽；\n- 赔偿率，%；\n- 出价，₽；\n- 费用，₽。\n",
+        "operationId": "SearchPromoOrdersReportSubmitRequest",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extstatisticsSearchPromoOrdersReportRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "活动统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsRequestID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/statistic/products/generate": {
+      "post": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "获取按订单付费商品报告——所选商品",
+        "description": "\n在请求参数中，`from` 和 `to` 请填写时间段。\n\n性能API异步。\n\n因此，请求结果将不是报告本身，而是发送请求的唯一标识符，可以通过此标识符[检查报告生成状态](#operation/StatisticsCheck)和[下载CSV格式的报告](#operation/DownloadStatistics)。\n\n要请求JSON格式的报告，请将方法地址中的地址添加为： `/api/client/statistic/products/generate/json`。\n\n报告包含：\n\n- 报告周期；\n- SKU;\n- 货号；\n- 名称；\n- 类目；\n- 推广；\n- 商品价格，₽；\n- 赔偿率，%；\n- 出价，₽；\n- 订单数量；\n- 订单总额，₽；\n- 费用，₽；\n- 销售（按点击付费），₽；\n- 费用（按点击付费），₽；\n- 订单（按点击付费），件；\n- 添加到购物车；\n- 广告收入率，%；\n- 最后更新。\n",
+        "operationId": "SearchPromoProductsReportSubmitRequest",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extstatisticsSearchPromoOrdersReportRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "活动统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsRequestID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/statistics/all_sku_promo/orders/generate": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "operationId": "GenerateAllSkuPromoOrdersReport",
+        "summary": "获取按订单付费订单报告——所有商品",
+        "description": "在请求参数中，`timeBounds.from` 和 `timeBounds.to` 请填写时间段。\n\n性能API异步。\n\n\n因此，请求结果将不是报告本身，而是发送请求的唯一标识符，可以通过此标识符[检查报告生成状态](#operation/StatisticsCheck)和[下载CSV格式的报告](#operation/DownloadStatistics)。\n\n\n要请求JSON格式的报告，请将方法地址中的地址添加为： `/api/client/statistics/all_sku_promo/orders/generate/json`。\n\n\n报告包含：\n- 报告周期；\n- 日期；\n- 订单标识符；\n- 订单号；\n- SKU；\n- 推广商品的SKU；\n- 货号；\n- 商品名称；\n- 数量；\n- 价格，₽；\n- 销售价格，₽;\n- 出价，%；\n- 出价，₽；\n- 费用，₽。\n",
+        "parameters": [
+          {
+            "name": "timeBounds.from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "报告周期的起始日期，以RFC 3339格式。"
+          },
+          {
+            "name": "timeBounds.to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "报告周期的最终日期，以RFC 3339格式。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "广告活动统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatisticsGenerateAllSkuPromoOrdersReportResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/statistics/all_sku_promo/products/generate": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "获取按订单付费商品报告——所有商品",
+        "description": "在请求参数中，`timeBounds.from` 和 `timeBounds.to` 请填写时间段。\n\n性能API异步。\n\n\n因此，请求结果将不是报告本身，而是发送请求的唯一标识符，可以通过此标识符[检查报告生成状态](#operation/StatisticsCheck)和[下载CSV格式的报告](#operation/DownloadStatistics)。\n\n\n要请求JSON格式的报告，请将方法地址中的地址添加为： `/api/client/statistics/all_sku_promo/products/generate/json`。\n\n报告包含：\n- 日期；\n- 推广状态：已启用或已关闭；\n- 费用，₽；\n- 来自搜索的销售额，₽；\n- 来自推荐的销售额，₽；\n- 来自搜索的订单数量；\n- 来自推荐的订单数量。\n",
+        "operationId": "GenerateAllSkuPromoProductsReport",
+        "parameters": [
+          {
+            "name": "timeBounds.from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "报告周期的起始日期，以RFC 3339格式。"
+          },
+          {
+            "name": "timeBounds.to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "报告周期的最终日期，以RFC 3339格式。"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "广告活动统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatisticsGenerateAllSkuPromoProductsReportResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/statistics/phrases": {
+      "post": {
+        "summary": "搜索查询报告",
+        "description": "该功能正处于测试阶段。<br><br>\n仅支持为`placement = PLACEMENT_TOP_PROMOTION`属性的按点击付费广告活动生成报告。<br><br>\n要请求JSON格式的报告，请在方法地址中添加 `/json` 并发送请求到 `/api/client/statistics/phrases/json` 地址。",
+        "tags": [
+          "Statistics"
+        ],
+        "operationId": "ExternalStatistics_StatisticsPhrasesSubmitRequest2",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extstatisticsStatisticsRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "搜索查询报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatisticsStatisticsRequestID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/statistics/products/sku": {
+      "post": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "获取按点击付费广告活动中的商品统计数据",
+        "description": "<aside class=\"notice\">\n不消耗Performance API的限额。\n</aside>\n",
+        "operationId": "SearchPromoProductsSKUStatistics2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extstatisticsSearchPromoProductsSKUStatisticsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "商品统计数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatisticsSearchPromoProductsSKUStatisticsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/campaign/cpc/v2/product": {
+      "post": {
+        "tags": [
+          "Ad"
+        ],
+        "summary": "创建点击付费广告活动",
+        "description": "创建付费点击广告的方法。\n\n在请求成功执行时，响应中的 `campaignId` 字段将包含创建的广告活动的标识符。\n",
+        "operationId": "CreateProductCampaignCPCV2",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extcampaignCreateProductCampaignRequestV2CPC"
+        },
+        "responses": {
+          "200": {
+            "description": "活动已创建",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignCampaignID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/external/api/dynamic_budget": {
+      "post": {
+        "tags": [
+          "Ad"
+        ],
+        "summary": "计算最低广告活动预算",
+        "operationId": "CalculateDynamicBudget",
+        "deprecated": true,
+        "description": "<aside class=\"warning\">\n2025年9月1日，旧方法将被停用。现在最低预算按以下公式计算：<b>2&nbsp;000 卢布 × 1 SKU</b>。\n</aside>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignCalculateDynamicBudgetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "查询结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignCalculateDynamicBudgetResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/campaign/{campaignId}/activate": {
+      "post": {
+        "tags": [
+          "Ad",
+          "Edit"
+        ],
+        "summary": "激活广告活动",
+        "operationId": "ActivateCampaign",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uint64",
+              "description": "广告活动标识符。"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extcampaignCampaignID"
+        },
+        "responses": {
+          "200": {
+            "description": "活动已启动",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignCampaign"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "POST /api/client/campaign/<CAMPAIGN_ID>/activate HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json"
+          }
+        ]
+      }
+    },
+    "/api/client/campaign/{campaignId}/deactivate": {
+      "post": {
+        "tags": [
+          "Ad",
+          "Edit"
+        ],
+        "summary": "关闭广告活动",
+        "operationId": "DeactivateCampaign",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uint64",
+              "description": "广告活动标识符。"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extcampaignCampaignID"
+        },
+        "responses": {
+          "200": {
+            "description": "活动已停用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignCampaign"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "POST /api/client/campaign/<CAMPAIGN_ID>/deactivate HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json\n\n{\n    \"campaignId\": <CAMPAIGN_ID>\n}"
+          }
+        ]
+      }
+    },
+    "/api/client/campaign/{campaignId}": {
+      "patch": {
+        "tags": [
+          "Ad",
+          "Edit"
+        ],
+        "summary": "广告活动参数",
+        "description": "更改广告活动参数的方法。",
+        "operationId": "PatchProductCampaign",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uint64",
+              "description": "广告活动标识符。"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignPatchProductCampaignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "广告参数已更新",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignCampaignID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "PATCH /api/client/campaign/<CAMPAIGN_ID> HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json\n\n{\n    \"fromDate\": \"2020-08-01\",\n    \"toDate\": \"2020-08-31\",\n    \"budget\": 100400000000000,\n    \"dailyBudget\": 100500000000,\n    \"expenseStrategy\": \"DAILY_BUDGET\"\n}"
+          }
+        ]
+      }
+    },
+    "/api/client/campaign/{campaignId}/products": {
+      "post": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "将商品添加到广告活动",
+        "description": "\n在活动中可以添加不超过500个商品。\n\n**不同活动的参数填写建议**\n\n- 为添加到活动的商品传递参数 `sku` 和 `bid` 的值。如果参数 `bid` 未指定， \n  自动设置竞争性报价。\n\n- `bid`参数仅适用于启用了“平均每次点击费用”策略的广告活动。\n\n- 对于已启用策略的广告活动，只能添加以下类目的商品：`autopilot.categoryId`。\n",
+        "operationId": "AddProducts",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uint64",
+              "description": "广告活动标识符。"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extcampaignAddProductsRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "商品已添加到活动中"
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "POST /api/client/campaign/<CAMPAIGN_ID>/products HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json\n\n{\n    \"bids\": [\n        {\"sku\": 123456789, \"bid\": 25000000},\n        {\"sku\": 987654321, \"bid\": 25000000}\n    ]\n}"
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "更新商品价格",
+        "description": "\n这个方法会重写停用词和带评分的短语列表。原始的停用词和带评分的短语将被删除。\n\n要在商品卡片中更新广告的竞价，需传递参数值 `sku` 和 `bid`。\n\n`bid`参数仅适用于启用了“平均每次点击费用”策略的广告活动。\n",
+        "operationId": "UpdateProducts",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uint64",
+              "description": "广告活动标识符。"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extcampaignUpdateProductsRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "赔偿率已更新"
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "PUT /api/client/campaign/<CAMPAIGN_ID>/products HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json\n\n{\n    \"bids\": [\n      {\n        \"sku\": 123456789,\n        \"bid\": 25000000\n      },\n      {\n        \"sku\": 987654321,\n        \"bid\": 25000000\n      }\n    ]\n}"
+          }
+        ]
+      }
+    },
+    "/api/client/campaign/{campaignId}/v2/products": {
+      "get": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "活动商品列表",
+        "operationId": "GetProductsV2",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "description": "广告活动标识符。",
+            "schema": {
+              "type": "string",
+              "format": "uint64"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页面编号。",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "页面尺寸。",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "活动商品列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignGetProductsResponseV2"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/campaign/{campaignId}/products/delete": {
+      "post": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "从活动中删除商品",
+        "operationId": "DeleteProducts",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uint64",
+              "description": "广告活动标识符。"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignDeleteProductsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "商品已从活动中删除"
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "POST /api/client/campaign/<CAMPAIGN_ID>/products/delete HTTP/1.1\nHost: api-performance.ozon.ru:443\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nContent-Type: application/json\nAccept: application/json\n\n{\n    \"sku\": [123456789, 987654321]\n}"
+          }
+        ]
+      }
+    },
+    "/api/client/campaign/{campaignId}/products/bids/competitive": {
+      "get": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "商品的竞争性投注",
+        "description": "\n如果商品未添加到活动中，参数 `bid` 的值将为 `0`。\n在一个请求中，您可以传递最多200个商品。\n",
+        "operationId": "GetProductsCompetitiveBids",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "required": true,
+            "description": "广告活动标识符。",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skus",
+            "in": "query",
+            "explode": true,
+            "description": "商品SKU列表。",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "竞争性赔率",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignGetProductsCompetitiveBidsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/campaign/search_promo/v2/products": {
+      "post": {
+        "tags": [
+          "Search-Promo"
+        ],
+        "summary": "“按订单付款”推广中的商品列表",
+        "operationId": "ExternalCampaign_ListSearchPromoProductsV2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignListSearchPromoProductsRequestV2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "商品列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignListSearchPromoProductsResponseV2"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/search_promo/bids/recommendation": {
+      "post": {
+        "tags": [
+          "Search-Promo"
+        ],
+        "operationId": "ExternalCampaign_GetProductsRecommendedBids",
+        "summary": "推荐的商品押金",
+        "description": "\n每个请求您可以传递最多200个SKU。\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignGetProductsRecommendedBidsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "推荐赔率",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignGetProductsRecommendedBidsResponse"
+                },
+                "example": {
+                  "recommendedBids": {
+                    "sku1": "string",
+                    "sku2": "string"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/campaign/search_promo/v2/bids/set": {
+      "post": {
+        "tags": [
+          "Search-Promo"
+        ],
+        "operationId": "ExternalCampaign_SetSearchPromoBidsV2",
+        "summary": "设置商品的价格",
+        "description": "\n如果商品尚未添加到推广中，系统将自动添加。\n\n在一个请求中可以传输最多1000个商品。\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignSetSearchPromoBidsRequestV2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "费率已设置",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignSetSearchPromoBidsResponseV2extcampaignSetSearchPromoBidsResponseV2"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/search_promo/product/enable": {
+      "post": {
+        "tags": [
+          "Search-Promo"
+        ],
+        "operationId": "ExternalCampaign_BatchEnableProducts",
+        "summary": "在“按订单付款”中开启商品推广",
+        "description": "\n在一个请求中可以传输最多1000个商品。\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignBatchEnableProductsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "商品推广已开启",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignBatchEnableProductsResponseextcampaignBatchEnableProductsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/search_promo/product/disable": {
+      "post": {
+        "tags": [
+          "Search-Promo"
+        ],
+        "operationId": "ExternalCampaign_BatchDisableProducts",
+        "summary": "在“按订单付款”中关闭商品推广",
+        "description": "\n在一个请求中可以传输最多1000个商品。\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignBatchDisableProductsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "商品推广已关闭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/campaign/search_promo/v2/bids/delete": {
+      "post": {
+        "tags": [
+          "Search-Promo"
+        ],
+        "operationId": "ExternalCampaign_DeleteSearchPromoBidsV2",
+        "summary": "从“按订单付款”推广中删除商品",
+        "description": "\n在一个请求中可以传输最多1000个商品。\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extcampaignDeleteSearchPromoBidsRequestV2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "商品已被删除",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/campaign/all_sku_promo/activate": {
+      "get": {
+        "tags": [
+          "Search-Promo"
+        ],
+        "operationId": "ActivateAllSkuPromoCampaign",
+        "summary": "启用按订单付费推广——所有商品",
+        "responses": {
+          "200": {
+            "description": "推广已启用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extcampaignActivateAllSkuPromoCampaignResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/campaign/all_sku_promo/deactivate": {
+      "get": {
+        "tags": [
+          "Search-Promo"
+        ],
+        "operationId": "DeactivateAllSkuPromoCampaign",
+        "summary": "关闭按订单付费推广——所有商品",
+        "responses": {
+          "200": {
+            "description": "推广已关闭"
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/vendors/statistics": {
+      "post": {
+        "tags": [
+          "Vendor"
+        ],
+        "summary": "外部流量分析报告",
+        "description": "\n用于启动外部流量分析报告生成的方法。\n\n`dateFrom` 和 `dateTo` 之间的差异不得超过三个月。如果差异大于三个月， \n报告将在指定在 `dateFrom` 中的日期后3个月内生成。\n",
+        "operationId": "VendorStatisticsSubmitRequest",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/extstatVendorStatisticsRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatStatisticsRequestID"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/vendors/statistics/list": {
+      "get": {
+        "tags": [
+          "Vendor"
+        ],
+        "summary": "请求的报告列表，包含外部流量分析",
+        "operationId": "VendorStatisticsListReports",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "页面编号。"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "页面尺寸。"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatVendorStatisticsReportsList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/vendors/statistics/{UUID}": {
+      "get": {
+        "tags": [
+          "Vendor"
+        ],
+        "summary": "关于UUID报告的信息",
+        "operationId": "VendorStatisticsCheck",
+        "parameters": [
+          {
+            "name": "UUID",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "description": "请求唯一标识符。"
+            },
+            "required": true
+          },
+          {
+            "name": "vendor",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "description": "标志，请求外部流量分析报告。请将此参数设置为 `true`。"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "报告信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extstatVendorStatisticsResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/client/organisation/vendor_tag": {
+      "get": {
+        "tags": [
+          "Vendor"
+        ],
+        "summary": "外部广告活动的组织标记",
+        "description": "方法返回 [_utm_campaign_](https://docs.ozon.ru/performance/analytics/#как-создать-ссылку-с-utm-метками) 根据组织标识。\n\n[了解更多关于外部广告活动的链接](https://docs.ozon.ru/performance/analytics/)\n",
+        "operationId": "GetVendorTag",
+        "parameters": [
+          {
+            "name": "orgId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uint64",
+              "description": "组织标识符。"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "组织标记",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extorganisationGetVendorTagResponse"
+                },
+                "example": {
+                  "tag": "vendor_org_42"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "请求错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JSON",
+            "source": "GET /api/client/organisation/vendor_tag?orgId=42 HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.WyJFTWhVVU...qTz2XXZBv41h4\nHost: api-performance.ozon.ru:443\nContent-Type: application/json\nAccept: application/json\n"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "rpcStatus": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "description": "错误描述。",
+            "type": "string"
+          }
+        },
+        "example": {
+          "error": "text"
+        }
+      },
+      "camptypeCampaignTypeInList": {
+        "type": "string",
+        "title": "string",
+        "default": "CAMPAIGN_TYPE_INVALID",
+        "enum": null,
+        "description": "支付方式：\n- `CPC` — 点击费用，\n- `CPM` — 按展示计价，\n- `CPO` — 为订单。\n"
+      },
+      "extcampaignCampaignState": {
+        "type": "string",
+        "title": "string",
+        "default": "CAMPAIGN_STATE_UNKNOWN",
+        "enum": null,
+        "description": "广告活动状态：\n- `CAMPAIGN_STATE_RUNNING` — 活跃的活动；\n- `CAMPAIGN_STATE_PLANNED` — 计划中的活动，时间还没有到；\n- `CAMPAIGN_STATE_STOPPED` — 由于预算不足而暂停的活动；\n- `CAMPAIGN_STATE_INACTIVE` — 由于拥有者停止而停止的活动；\n- `CAMPAIGN_STATE_ARCHIVED` — 归档的活动；\n- `CAMPAIGN_STATE_MODERATION_DRAFT` — 已编辑的未发送到审核的活动；\n- `CAMPAIGN_STATE_MODERATION_IN_PROGRESS` — 已提交审核的广告活动；\n- `CAMPAIGN_STATE_MODERATION_FAILED` — 未通过审核的广告活动；\n- `CAMPAIGN_STATE_FINISHED` — 该活动已结束，结束日期已过去，无法更改此活动，可以只能克隆或创建新的一份。\n"
+      },
+      "extcampaignProductCampaignInListPlacement": {
+        "type": "string",
+        "default": "PLACEMENT_INVALID",
+        "required": true,
+        "enum": [
+          "PLACEMENT_INVALID",
+          "PLACEMENT_PDP",
+          "PLACEMENT_SEARCH_AND_CATEGORY",
+          "PLACEMENT_TOP_PROMOTION",
+          "PLACEMENT_OVERTOP",
+          "PLACEMENT_TAKEOVER",
+          "PLACEMENT_TILE_MAIN"
+        ],
+        "description": "推广商品的位置：\n- `PLACEMENT_INVALID` — 未定义。\n- `PLACEMENT_PDP` — 商品卡片。仅适用于手动管理的活动。\n- `PLACEMENT_SEARCH_AND_CATEGORY` — 搜索和推荐。\n- `PLACEMENT_TOP_PROMOTION` — 搜索。\n- `PLACEMENT_OVERTOP` — 搜索和首页（特别投放）。\n- `PLACEMENT_TAKEOVER` — 同时在前4个模块中展示商品。\n- `PLACEMENT_TILE_MAIN` — 首页，原生横幅。\n"
+      },
+      "extcampaignCampaignAutopilotProperties": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "format": "uint64",
+            "description": "活动商品类目标识符。"
+          },
+          "skuAddMode": {
+            "type": "string",
+            "enum": [
+              "PRODUCT_CAMPAIGN_SKU_ADD_MODE_UNKNOWN",
+              "PRODUCT_CAMPAIGN_SKU_ADD_MODE_MANUAL",
+              "PRODUCT_CAMPAIGN_SKU_ADD_MODE_AUTO"
+            ],
+            "description": "是否允许将`categoryId`中指定类目的商品自动添加到采用`MAX_VIEWS`策略的广告活动中：\n- `PRODUCT_CAMPAIGN_SKU_ADD_MODE_UNKNOWN` — 商品添加到活动的策略未设置。 \n- `PRODUCT_CAMPAIGN_SKU_ADD_MODE_MANUAL` — 只能手动将商品添加到活动中。\n- `PRODUCT_CAMPAIGN_SKU_ADD_MODE_AUTO` — 可以自动将类目 `categoryId` 的商品添加到活动中。\n\n如果许可类型为空或已传递为 `PRODUCT_CAMPAIGN_SKU_ADD_MODE_UNKNOWN`，只能手动将商品添加到活动中。\n\n对于未采用`MAX_VIEWS`策略的广告活动，返回`PRODUCT_CAMPAIGN_SKU_ADD_MODE_UNKNOWN`。\n"
+          }
+        },
+        "description": "活动信息。如果在`productAutopilotStrategy`参数中启用了策略，则返回该信息。"
+      },
+      "extcampaignCampaignInList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动标识符。"
+          },
+          "paymentType": {
+            "$ref": "#/components/schemas/camptypeCampaignTypeInList"
+          },
+          "title": {
+            "type": "string",
+            "description": "活动名称。"
+          },
+          "state": {
+            "$ref": "#/components/schemas/extcampaignCampaignState"
+          },
+          "advObjectType": {
+            "type": "string",
+            "description": "广告活动类型：\n  - `SKU` — 按点击付费；\n  - `SEARCH_PROMO` — 按订单付款。\n"
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "广告活动的启动日期。"
+          },
+          "toDate": {
+            "type": "string",
+            "description": "广告活动结束日期。"
+          },
+          "budget": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动预算。单位是卢布的百万分之一，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。"
+          },
+          "dailyBudget": {
+            "type": "string",
+            "format": "uint64",
+            "description": "每日广告活动预算。计量单位是千分之一卢布，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。"
+          },
+          "weeklyBudget": {
+            "type": "string",
+            "format": "uint64",
+            "description": "每周广告活动预算。单位是卢布的百万分之一，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。"
+          },
+          "placement": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignProductCampaignInListPlacement"
+            },
+            "description": "广告位置：\n- `PLACEMENT_INVALID` — 未定义；\n- `PLACEMENT_PDP` — 商品卡片；\n- `PLACEMENT_SEARCH_AND_CATEGORY` — 搜索和类目（模版）。\n- `PLACEMENT_TOP_PROMOTION` — 输出到顶部。\n- `PLACEMENT_OVERTOP` — 搜索和首页（特别投放）。\n- `PLACEMENT_TAKEOVER` — 同时在前4个模块中展示商品。\n- `PLACEMENT_TILE_MAIN` — 首页，原生横幅。\n"
+          },
+          "productAutopilotStrategy": {
+            "type": "string",
+            "enum": [
+              "MAX_VIEWS",
+              "MAX_CLICKS",
+              "TOP_MAX_CLICKS",
+              "NO_AUTO_STRATEGY",
+              "TAKEOVER",
+              "TOP_PROMOTION"
+            ],
+            "description": "广告活动当前使用的策略：\n  - `MAX_VIEWS` — 最大显示次数；\n  - `MAX_CLICKS` — 搜索和推荐的自动策略；\n  - `TOP_MAX_CLICKS` — 搜索的自动策略；\n  - `NO_AUTO_STRATEGY` — 不使用自动策略；\n  - `TAKEOVER` — 搜索特别投放；\n  - `TOP_PROMOTION` — 登上顶端。\n"
+          },
+          "autopilot": {
+            "$ref": "#/components/schemas/extcampaignCampaignAutopilotProperties"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建活动的日期格式为RFC3339。"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新广告的日期，以RFC3339格式。"
+          },
+          "productCampaignMode": {
+            "type": "string",
+            "default": "PRODUCT_CAMPAIGN_MODE_AUTO",
+            "enum": [
+              "PRODUCT_CAMPAIGN_MODE_AUTO",
+              "PRODUCT_CAMPAIGN_MODE_MANUAL"
+            ],
+            "description": "创建和管理商品广告活动模式：\n- `PRODUCT_CAMPAIGN_MODE_AUTO` — 自动;\n- `PRODUCT_CAMPAIGN_MODE_MANUAL` — 手动。\n"
+          }
+        }
+      },
+      "extcampaignCampaignsList": {
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignCampaignInList"
+            },
+            "description": "广告活动列表。"
+          }
+        }
+      },
+      "extcampaignCampaignObject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告对象标识符：\n- SKU — 用于在赞助商区和类目中的商品广告；\n- 数字标识符 — 用于横幅广告活动。\n"
+          }
+        }
+      },
+      "extcampaignCampaignObjectsList": {
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignCampaignObject"
+            },
+            "description": "广告对象标识符列表。"
+          }
+        }
+      },
+      "extcampaignCategoriesLimits": {
+        "type": "object",
+        "properties": {
+          "bid": {
+            "type": "number",
+            "format": "double",
+            "description": "在卢布的利率。"
+          },
+          "category": {
+            "type": "string",
+            "description": "商品类别。"
+          }
+        }
+      },
+      "extcampaignLimitsData": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignCategoriesLimits"
+            },
+            "description": "二级类目最低费率。如果类目不在列表中，则应用工具的最低费率。"
+          },
+          "maxBid": {
+            "type": "number",
+            "format": "double",
+            "description": "最大投注金额（俄罗斯卢布）。"
+          },
+          "minBid": {
+            "type": "number",
+            "format": "double",
+            "description": "最低押金（以卢布为单位）。"
+          },
+          "objectType": {
+            "type": "string",
+            "enum": [
+              "SKU",
+              "SEARCH_PROMO"
+            ],
+            "description": "工具类型：\n- `SKU` — 按点击付费，\n- `SEARCH_PROMO` — 按订单付款。\n"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "CPO",
+              "CPC",
+              "CPM"
+            ],
+            "description": "付款方式：\n- `CPO` — 订单付款，\n- `CPC` — 点击付费，\n- `CPM` — 每 1000 次展示支付。\n"
+          },
+          "placement": {
+            "type": "string",
+            "enum": [
+              "CAMPAIGN_PLACEMENT_SEARCH_AND_CATEGORY",
+              "CAMPAIGN_PLACEMENT_TOP_PROMOTION",
+              "CAMPAIGN_PLACEMENT_OVERTOP"
+            ],
+            "description": "广告类型：\n- `CAMPAIGN_PLACEMENT_SEARCH_AND_CATEGORY` — 搜索和推荐；\n- `CAMPAIGN_PLACEMENT_TOP_PROMOTION` — 搜索；\n- `CAMPAIGN_PLACEMENT_OVERTOP` — 特别投放。\n"
+          }
+        }
+      },
+      "extcampaignListLimitsResponse": {
+        "type": "object",
+        "properties": {
+          "limits": {
+            "type": "array",
+            "description": "推广工具的最低和最高投注。",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignLimitsData"
+            }
+          }
+        }
+      },
+      "camptypeMarketplaceID": {
+        "type": "string",
+        "enum": [
+          "MARKETPLACE_ID_RU",
+          "MARKETPLACE_ID_KZ",
+          "MARKETPLACE_ID_BY"
+        ],
+        "description": "橱窗国家：\n- `MARKETPLACE_ID_RU` — 俄罗斯；\n- `MARKETPLACE_ID_KZ` — 哈萨克斯坦；\n- `MARKETPLACE_ID_BY` — 白俄罗斯。\n"
+      },
+      "camptypeCampaignTypeRate": {
+        "type": "string",
+        "title": "string",
+        "enum": [
+          "CPO",
+          "CPC",
+          "CPC_TOP"
+        ],
+        "description": "最低出价类型：\n- `CPO` — “按订单付款” 类型的活动；\n- `CPC` — 搜索和推荐；\n- `CPC_TOP` — 搜索。\n"
+      },
+      "extcampaignBidBySKURequest": {
+        "type": "object",
+        "properties": {
+          "marketplaceId": {
+            "$ref": "#/components/schemas/camptypeMarketplaceID"
+          },
+          "paymentType": {
+            "$ref": "#/components/schemas/camptypeCampaignTypeRate"
+          },
+          "sku": {
+            "description": "商品标识符：Ozon ID 或 SKU\n",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            }
+          }
+        }
+      },
+      "BidBySKUResponseBidSKU": {
+        "type": "object",
+        "properties": {
+          "bid": {
+            "description": "出价金额。",
+            "type": "number",
+            "format": "double"
+          },
+          "sku": {
+            "description": "商品标识符：Ozon ID 或 SKU。\n",
+            "type": "string",
+            "format": "uint64"
+          }
+        }
+      },
+      "extcampaignBidBySKUResponse": {
+        "type": "object",
+        "properties": {
+          "minBids": {
+            "description": "关于最低出价的信息。",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BidBySKUResponseBidSKU"
+            }
+          }
+        }
+      },
+      "extcampaignListProductsWithBonusesResponse": {
+        "type": "object",
+        "properties": {
+          "skus": {
+            "type": "array",
+            "description": "商品SKU列表。",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            }
+          }
+        }
+      },
+      "extstatGroupBy": {
+        "type": "string",
+        "default": "NO_GROUP_BY",
+        "enum": [
+          "NO_GROUP_BY",
+          "DATE",
+          "START_OF_WEEK",
+          "START_OF_MONTH"
+        ],
+        "description": "时间分组类型：\n- `DATE` — 按日期分组（按天）；\n- `START_OF_WEEK` — 按周分组；\n- `START_OF_MONTH` — 按月份分组。\n"
+      },
+      "extstatStatisticsRequest": {
+        "type": "object",
+        "properties": {
+          "campaigns": {
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "description": "需要准备报告的广告活动标识符列表。\n\n报告格式：\n- CSV — 如果列表中只有一个活动。\n- ZIP归档 — 如果列表中有多个广告活动。每个文件对应列表中的一个广告活动。文件名格式为 `<идентификатор кампании>。csv`。\n"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time",
+            "description": "报告周期的起始日期，以RFC 3339格式。\n\n最长的报告获取时间为62天。\n"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "description": "报告周期的最终日期，以RFC 3339格式。\n\n最长的报告获取时间为62天。\n"
+          },
+          "dateFrom": {
+            "type": "string",
+            "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n"
+          },
+          "dateTo": {
+            "type": "string",
+            "description": "报告期的最终日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n"
+          },
+          "groupBy": {
+            "$ref": "#/components/schemas/extstatGroupBy"
+          }
+        },
+        "description": "原始请求结构。",
+        "required": [
+          "campaigns"
+        ]
+      },
+      "extstatStatisticsRequestID": {
+        "type": "object",
+        "properties": {
+          "UUID": {
+            "type": "string",
+            "description": "已发送请求的唯一标识符。 \n\n通过它可以[检查报告生成状态](#operation/VendorStatisticsCheck)和[下载报告](#operation/DownloadStatistics)。\n"
+          },
+          "vendor": {
+            "type": "boolean",
+            "description": "如果需要外部流量分析报告 — `true`。"
+          }
+        }
+      },
+      "extstatStatisticsVideobannerRequest": {
+        "type": "object",
+        "properties": {
+          "campaigns": {
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "description": "需要准备报告的广告活动标识符列表。\n\n报告格式：\n- CSV — 如果列表中只有一个活动。\n- ZIP归档 — 如果列表中有多个广告活动。每个文件对应列表中的一个广告活动。文件名格式为 `<идентификатор кампании>。csv`。\n"
+          },
+          "dateFrom": {
+            "type": "string",
+            "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n"
+          },
+          "dateTo": {
+            "type": "string",
+            "description": "报告期的最终日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n"
+          },
+          "groupBy": {
+            "$ref": "#/components/schemas/extstatGroupBy"
+          }
+        },
+        "description": "原始请求结构。",
+        "required": [
+          "campaigns"
+        ]
+      },
+      "extstatStatisticsRequestState": {
+        "type": "string",
+        "default": "NOT_STARTED",
+        "enum": [
+          "NOT_STARTED",
+          "IN_PROGRESS",
+          "ERROR",
+          "OK"
+        ],
+        "description": "当前请求状态：\n- `NOT_STARTED` — 请求等待执行；\n- `IN_PROGRESS` — 请求正在进行中；\n- `ERROR` — 请求执行失败；\n- `OK` — 请求成功完成。\n"
+      },
+      "extstatStatisticsResponse": {
+        "type": "object",
+        "properties": {
+          "UUID": {
+            "type": "string",
+            "description": "用于进行检查的请求唯一标识符。"
+          },
+          "state": {
+            "$ref": "#/components/schemas/extstatStatisticsRequestState"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "请求被服务器接收的日期和时间，时区为UTC。"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "请求状态最后更新时间，时区UTC。"
+          },
+          "request": {
+            "$ref": "#/components/schemas/extstatStatisticsRequest"
+          },
+          "error": {
+            "type": "string",
+            "description": "出现错误的简要描述。\n\n如果请求执行失败，字段将存在。\n"
+          },
+          "link": {
+            "type": "string",
+            "description": "相对链接到CSV格式的报告。\n\n字段存在，如果请求成功。\n"
+          },
+          "kind": {
+            "type": "string",
+            "default": "STATS",
+            "enum": [
+              "STATS",
+              "SEARCH_PHRASES",
+              "ATTRIBUTION",
+              "VIDEO"
+            ],
+            "description": "请求的报告类型：\n- `STATS` — 项目报告;\n- `SEARCH_PHRASES` — 关于搜索词和商品类目的报告；\n- `ATTRIBUTION`— “按订单付款”的订单报告；\n- `VIDEO` — 视频广告展示报告。\n"
+          }
+        },
+        "description": "请求信息。"
+      },
+      "StatisticsReportsListItemCampaign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动标识符。"
+          },
+          "title": {
+            "type": "string",
+            "description": "活动名称。"
+          }
+        }
+      },
+      "extstatStatisticsReportsListItem": {
+        "type": "object",
+        "properties": {
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatisticsReportsListItemCampaign"
+            },
+            "description": "广告活动列表。"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/extstatStatisticsResponse"
+          },
+          "name": {
+            "type": "string",
+            "description": "报告名称。"
+          }
+        }
+      },
+      "extstatStatisticsReportsList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extstatStatisticsReportsListItem"
+            },
+            "description": "报告列表。"
+          },
+          "total": {
+            "type": "string",
+            "format": "uint64",
+            "description": "报告数量。"
+          }
+        }
+      },
+      "extstatStatisticsReport": {
+        "type": "object",
+        "properties": {
+          "contentType": {
+            "type": "string",
+            "description": "报告格式。"
+          }
+        }
+      },
+      "extstatisticsGenerateAllSkuPromoOrdersReportResponse": {
+        "type": "object",
+        "properties": {
+          "UUID": {
+            "type": "string",
+            "description": "已发送请求的唯一标识符。 \n\n通过它可以[检查报告生成状态](#operation/VendorStatisticsCheck)和[下载报告](#operation/DownloadStatistics)。\n"
+          }
+        }
+      },
+      "extstatisticsGenerateAllSkuPromoProductsReportResponse": {
+        "type": "object",
+        "properties": {
+          "UUID": {
+            "type": "string",
+            "description": "已发送请求的唯一标识符。 \n\n通过它可以[检查报告生成状态](#operation/VendorStatisticsCheck)和[下载报告](#operation/DownloadStatistics)。\n"
+          }
+        }
+      },
+      "extstatisticsGroupBy": {
+        "type": "string",
+        "default": "NO_GROUP_BY",
+        "enum": [
+          "NO_GROUP_BY",
+          "DATE",
+          "START_OF_WEEK",
+          "START_OF_MONTH"
+        ],
+        "description": "时间分组类型：\n- `DATE` — 按日期分组（按天）；\n- `START_OF_WEEK` — 按周分组；\n- `START_OF_MONTH` — 按月份分组。\n"
+      },
+      "extstatisticsStatisticsRequest": {
+        "type": "object",
+        "properties": {
+          "campaigns": {
+            "description": "广告活动列表。",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            }
+          },
+          "dateFrom": {
+            "description": "报告周期的起始日期格式为YYYY-MM-DD。例如：`2019-02-10`。 日期不得早于2025年2月1日。\n",
+            "type": "string"
+          },
+          "dateTo": {
+            "type": "string",
+            "description": "报告期的最终日期格式为YYYY-MM-DD。例如：`2019-02-10`。\n"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time",
+            "description": "报告周期的起始日期，以RFC 3339格式。 日期不得早于2025年2月1日。"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "description": "报告周期的最终日期，以RFC 3339格式。"
+          },
+          "groupBy": {
+            "$ref": "#/components/schemas/extstatisticsGroupBy"
+          }
+        }
+      },
+      "extstatisticsStatisticsRequestID": {
+        "type": "object",
+        "properties": {
+          "UUID": {
+            "type": "string",
+            "description": "已发送请求的唯一标识符。 \n\n通过它可以[检查报告生成状态](#operation/VendorStatisticsCheck)和[下载报告](#operation/DownloadStatistics)。\n"
+          },
+          "vendor": {
+            "type": "boolean",
+            "description": "如果需要外部流量分析报告 — `true`。"
+          }
+        }
+      },
+      "extstatisticsSearchPromoProductsSKUStatisticsRequest": {
+        "type": "object",
+        "properties": {
+          "campaignIds": {
+            "type": "array",
+            "description": "广告活动标识符列表。",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            }
+          },
+          "dateFrom": {
+            "pattern": " YYYY-MM-DD",
+            "type": "string",
+            "description": "统计周期开始日期，不早于前一天。"
+          },
+          "dateTo": {
+            "pattern": " YYYY-MM-DD",
+            "type": "string",
+            "description": "统计周期结束日期。"
+          }
+        }
+      },
+      "SearchPromoProductsSKUStatisticsResponseRow": {
+        "type": "object",
+        "properties": {
+          "avgCpc": {
+            "type": "string",
+            "description": "平均每次点击费用（卢布）。"
+          },
+          "campaignId": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动标识符。"
+          },
+          "clicks": {
+            "type": "string",
+            "format": "uint64",
+            "description": "点击次数。"
+          },
+          "ctr": {
+            "type": "number",
+            "format": "double",
+            "description": "点击次数与展示次数的比例——CTR。"
+          },
+          "date": {
+            "type": "string",
+            "description": "统计数据对应的日期。"
+          },
+          "dateAdded": {
+            "type": "string",
+            "format": "date-time",
+            "description": "广告活动添加日期。"
+          },
+          "drr": {
+            "type": "number",
+            "format": "double",
+            "description": "广告费用份额。"
+          },
+          "expense": {
+            "type": "string",
+            "description": "费用（卢布）。"
+          },
+          "modelOrders": {
+            "type": "string",
+            "format": "uint64",
+            "description": "型号订单数量。"
+          },
+          "modelSales": {
+            "type": "string",
+            "description": "型号订单金额（卢布）。"
+          },
+          "orders": {
+            "type": "string",
+            "format": "uint64",
+            "description": "订单数量。"
+          },
+          "price": {
+            "type": "string",
+            "description": "商品价格（卢布）。"
+          },
+          "sales": {
+            "type": "string",
+            "description": "订单金额（卢布）。"
+          },
+          "sku": {
+            "type": "string",
+            "format": "uint64",
+            "description": "Ozon系统中的商品标识符（SKU）。"
+          },
+          "toCart": {
+            "type": "string",
+            "format": "uint64",
+            "description": "商品被加入购物车的次数。"
+          },
+          "views": {
+            "type": "string",
+            "format": "uint64",
+            "description": "展示次数。"
+          }
+        }
+      },
+      "extstatisticsSearchPromoProductsSKUStatisticsResponse": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "description": "商品统计数据。",
+            "items": {
+              "$ref": "#/components/schemas/SearchPromoProductsSKUStatisticsResponseRow"
+            }
+          }
+        }
+      },
+      "CreateProductCampaignRequestV2ProductCampaignPlacementV2": {
+        "type": "string",
+        "title": "string",
+        "default": "PLACEMENT_INVALID",
+        "enum": null,
+        "description": "推广商品的位置：\n- `PLACEMENT_TOP_PROMOTION` — 搜索;\n- `PLACEMENT_INVALID` — 未定义;\n- `PLACEMENT_SEARCH_AND_CATEGORY` — 搜索和推荐。\n"
+      },
+      "camptypeProductAutopilotStrategyCPC": {
+        "type": "string",
+        "title": "string",
+        "default": "NO_AUTO_STRATEGY",
+        "enum": [
+          "MAX_CLICKS",
+          "TOP_MAX_CLICKS",
+          "TARGET_BIDS",
+          "NO_AUTO_STRATEGY",
+          "TOP_PROMOTION",
+          "TARGET_CIR"
+        ],
+        "description": "广告活动将使用的策略：\n- `MAX_CLICKS` — 搜索和推荐的自动策略；\n- `TOP_MAX_CLICKS` — 搜索的自动策略；\n- `TARGET_BIDS` — 搜索的平均点击费用；\n- `NO_AUTO_STRATEGY` — 不使用自动策略；\n- `TOP_PROMOTION` — 登上顶端；\n- `TARGET_CIR` — 目标费用。\n"
+      },
+      "extcampaignCreateProductCampaignRequestV2CPC": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "广告活动名称。"
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "广告活动开始日期（莫斯科时间）。\n\n如果参数未填写，则启动日期为当前天的开始。 \n如果不需要审核，解封操作会在活动激活后立即开始。\n"
+          },
+          "toDate": {
+            "type": "string",
+            "description": "按莫斯科时间的广告活动结束日期。 \n对于在自动模式下创建的点击付费广告活动，不考虑此参数。\n"
+          },
+          "dailyBudget": {
+            "deprecated": true,
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动每日预算限制。单位是俄罗斯卢布的百万分之一，四舍五入到戈比。\n例如，参数值 `1 000 000` 等于1卢布。\n\n如果参数未填写，日预算不受限制。创建广告活动后，无法将日预算更改为周预算或反之。\n"
+          },
+          "weeklyBudget": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动周预算限制。单位是卢布的百万分之一，四舍五入到戈比。\n例如，参数值 `1 000 000` 等于1卢布。\n\n如果参数未填写，周预算不受限制。创建广告活动后，无法将周预算更改为日预算或反之。\n"
+          },
+          "placement": {
+            "$ref": "#/components/schemas/CreateProductCampaignRequestV2ProductCampaignPlacementV2"
+          },
+          "productAutopilotStrategy": {
+            "$ref": "#/components/schemas/camptypeProductAutopilotStrategyCPC"
+          }
+        },
+        "required": [
+          "placement"
+        ]
+      },
+      "extcampaignCampaignID": {
+        "type": "object",
+        "properties": {
+          "campaignId": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动标识符。"
+          }
+        }
+      },
+      "camptypeDBproductAutopilotStrategy": {
+        "type": "string",
+        "title": "string",
+        "default": "NO_AUTO_STRATEGY",
+        "enum": null,
+        "description": "广告活动将使用的策略：\n- `MAX_CLICKS` — 搜索和推荐的自动策略；\n- `TOP_MAX_CLICKS` — 搜索的自动策略；\n- `TARGET_BIDS` — 搜索的平均点击费用；\n- `NO_AUTO_STRATEGY` — 不使用自动策略。\n"
+      },
+      "advcamptypePlacement": {
+        "type": "string",
+        "title": "string",
+        "description": "广告位置：\n- `CAMPAIGN_PLACEMENT_INVALID` — 未定义；\n- `CAMPAIGN_PLACEMENT_PDP` — 商品卡片；\n- `CAMPAIGN_PLACEMENT_SEARCH_AND_CATEGORY` — 搜索和推荐；\n- `CAMPAIGN_PLACEMENT_TOP_PROMOTION` — 搜索。\n",
+        "default": "CAMPAIGN_PLACEMENT_INVALID",
+        "enum": [
+          "CAMPAIGN_PLACEMENT_INVALID",
+          "CAMPAIGN_PLACEMENT_PDP",
+          "CAMPAIGN_PLACEMENT_SEARCH_AND_CATEGORY",
+          "CAMPAIGN_PLACEMENT_TOP_PROMOTION"
+        ]
+      },
+      "CalculateDynamicBudgetRequestCreateCampaignScenario": {
+        "type": "object",
+        "title": "object",
+        "description": "创建活动时的计算参数。",
+        "properties": {
+          "autopilotStrategy": {
+            "$ref": "#/components/schemas/camptypeDBproductAutopilotStrategy"
+          },
+          "placement": {
+            "$ref": "#/components/schemas/advcamptypePlacement"
+          },
+          "skusCount": {
+            "description": "商品数量。",
+            "type": "string",
+            "format": "uint64"
+          }
+        }
+      },
+      "camptypeMaybeProductAutopilotStrategy": {
+        "type": "object",
+        "title": "object",
+        "description": "关于自适应策略的信息。",
+        "properties": {
+          "strategy": {
+            "$ref": "#/components/schemas/camptypeDBproductAutopilotStrategy"
+          }
+        }
+      },
+      "CalculateDynamicBudgetRequestUpdateCampaignScenario": {
+        "type": "object",
+        "title": "object",
+        "description": "更新活动时的计算参数。",
+        "properties": {
+          "addingSkus": {
+            "description": "已加入活动的商品。",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            }
+          },
+          "autopilotStrategy": {
+            "$ref": "#/components/schemas/camptypeMaybeProductAutopilotStrategy"
+          },
+          "campaignId": {
+            "description": "广告活动标识符。",
+            "type": "string",
+            "format": "uint64"
+          }
+        }
+      },
+      "extcampaignCalculateDynamicBudgetRequest": {
+        "type": "object",
+        "properties": {
+          "createCampaign": {
+            "$ref": "#/components/schemas/CalculateDynamicBudgetRequestCreateCampaignScenario"
+          },
+          "updateCampaign": {
+            "$ref": "#/components/schemas/CalculateDynamicBudgetRequestUpdateCampaignScenario"
+          }
+        }
+      },
+      "camptypeDynamicBudgetType": {
+        "type": "string",
+        "title": "string",
+        "description": "最低预算类型：\n- `DYNAMIC_BUDGET_REQUIRED` — 必填；\n- `DYNAMIC_BUDGET_RECOMMENDED` — 推荐的。\n",
+        "default": "DYNAMIC_BUDGET_REQUIRED",
+        "enum": [
+          "DYNAMIC_BUDGET_REQUIRED",
+          "DYNAMIC_BUDGET_RECOMMENDED"
+        ]
+      },
+      "extcampaignCalculateDynamicBudgetResponse": {
+        "type": "object",
+        "properties": {
+          "campaignBudget": {
+            "description": "广告活动预算。单位是卢布的百万分之一，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。",
+            "type": "string",
+            "format": "uint64"
+          },
+          "dynamicBudget": {
+            "description": "最低预算。",
+            "type": "string",
+            "format": "uint64"
+          },
+          "dynamicBudgetType": {
+            "$ref": "#/components/schemas/camptypeDynamicBudgetType"
+          },
+          "skuPrice": {
+            "description": "每向广告活动中添加一件商品时，最低预算增加的金额（以卢布为单位）。",
+            "type": "string",
+            "format": "uint64"
+          }
+        }
+      },
+      "Empty": {
+        "type": "object"
+      },
+      "camptypeCampaignType": {
+        "type": "string",
+        "title": "string",
+        "default": "CAMPAIGN_TYPE_INVALID",
+        "enum": null,
+        "description": "支付方式：\n- `CPC` — 点击费用。\n"
+      },
+      "extcampaignProductCampaignPlacement": {
+        "type": "string",
+        "default": "PLACEMENT_INVALID",
+        "required": true,
+        "enum": [
+          "PLACEMENT_INVALID",
+          "PLACEMENT_PDP",
+          "PLACEMENT_SEARCH_AND_CATEGORY",
+          "PLACEMENT_TOP_PROMOTION"
+        ],
+        "description": "推广商品的位置：\n`PLACEMENT_INVALID` — 未定义。\n`PLACEMENT_PDP` — 商品卡片。仅适用于手动管理的活动。\n`PLACEMENT_SEARCH_AND_CATEGORY` — 搜索和推荐。\n`PLACEMENT_TOP_PROMOTION` — 搜索。\n"
+      },
+      "extcampaignCampaign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动标识符。"
+          },
+          "paymentType": {
+            "$ref": "#/components/schemas/camptypeCampaignType"
+          },
+          "title": {
+            "type": "string",
+            "description": "活动名称。"
+          },
+          "state": {
+            "$ref": "#/components/schemas/extcampaignCampaignState"
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "广告活动的启动日期。"
+          },
+          "toDate": {
+            "type": "string",
+            "description": "广告活动结束日期。"
+          },
+          "budget": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动预算。单位是卢布的百万分之一，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。"
+          },
+          "dailyBudget": {
+            "deprecated": true,
+            "type": "string",
+            "format": "uint64",
+            "description": "每日广告活动预算。计量单位是千分之一卢布，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。"
+          },
+          "weeklyBudget": {
+            "type": "string",
+            "format": "uint64",
+            "description": "每周广告活动预算。单位是卢布的百万分之一，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。"
+          },
+          "placement": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignProductCampaignPlacement"
+            },
+            "description": "广告位置：\n- `PLACEMENT_INVALID` — 未定义；\n- `PLACEMENT_PDP` — 商品卡片；\n- `PLACEMENT_SEARCH_AND_CATEGORY` — 搜索和类目（模版）；\n- `PLACEMENT_TOP_PROMOTION` — 输出到顶部。\n"
+          },
+          "productAutopilotStrategy": {
+            "type": "string",
+            "enum": [
+              "MAX_CLICKS",
+              "TOP_MAX_CLICKS",
+              "TARGET_BIDS",
+              "TOP_PROMOTION",
+              "TARGET_CIR"
+            ],
+            "description": "广告活动当前使用的策略：\n  - `MAX_CLICKS` — 搜索和推荐的自动策略；\n  - `TOP_MAX_CLICKS` — 搜索的自动策略；\n  - `TARGET_BIDS` — 搜索和推荐的平均点击费用；\n  - `TOP_PROMOTION` — 登上顶端；\n  - `TARGET_CIR` — 目标费用。\n"
+          },
+          "autopilot": {
+            "$ref": "#/components/schemas/extcampaignCampaignAutopilotProperties"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建活动的日期格式为RFC3339。"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新广告的日期，以RFC3339格式。"
+          },
+          "productCampaignMode": {
+            "type": "string",
+            "default": "PRODUCT_CAMPAIGN_MODE_AUTO",
+            "enum": [
+              "PRODUCT_CAMPAIGN_MODE_AUTO",
+              "PRODUCT_CAMPAIGN_MODE_MANUAL"
+            ],
+            "description": "创建和管理商品广告活动模式：\n- `PRODUCT_CAMPAIGN_MODE_AUTO` — 自动;\n- `PRODUCT_CAMPAIGN_MODE_MANUAL` — 手动。\n"
+          }
+        }
+      },
+      "extcampaignPatchProductCampaignRequest": {
+        "type": "object",
+        "properties": {
+          "autopilot": {
+            "type": "object",
+            "description": "活动信息。 如果参数 `productAutopilotStrategy` 开启了自动策略，则为必填项。"
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "广告活动开始日期（莫斯科时间）。\n\n不能早于当前日期。\n"
+          },
+          "toDate": {
+            "type": "string",
+            "description": "按莫斯科时间的广告活动结束日期。\n\n不能早于开始日期。\n"
+          },
+          "budget": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动总预算限制。单位是卢布的百万分之一，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。\n\n仅适用于品牌和代理机构的自动化活动。 \n在其他组织中无法安装新的总预算限制。如果已为活动设置预算，可以：\n- 移除限制：将此参数传为 `0`。\n- 不要更改公司预算。当预算用完时，可以删除预算限制或创建一个无限预算的新活动。\n"
+          },
+          "dailyBudget": {
+            "deprecated": true,
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动每日预算限制。单位是俄罗斯卢布的百万分之一，四舍五入到分。例如，参数值 `1 000 000` 等于1卢布。\n\n如果参数未填写，日预算不受限制。创建广告活动后，无法将日预算更改为周预算或反之。\n"
+          },
+          "weeklyBudget": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动周预算限制。单位是卢布的百万分之一，四舍五入到戈比。\n例如，参数值 `1 000 000` 等于1卢布。\n\n如果参数未填写，周预算不受限制。创建广告活动后，无法将周预算更改为日预算或反之。\n"
+          }
+        }
+      },
+      "extcampaignUpdateProductsRequestProduct": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "format": "uint64",
+            "description": "促销商品的SKU。\n"
+          },
+          "bid": {
+            "type": "string",
+            "format": "uint64",
+            "description": "<aside class=\"notice\"> 仅适用于“平均每次点击费用”策略。</aside>\n\n单次点击出价——CPC。\n"
+          },
+          "targetCir": {
+            "minimum": 10,
+            "maximum": 100,
+            "default": 15,
+            "description": "<aside class=\"notice\"> 仅适用于“目标费用”策略。</aside>\n\n目标广告费用份额，单位为百分比。\n",
+            "type": "number",
+            "format": "double"
+          },
+          "topPosition": {
+            "description": "<aside class=\"notice\"> 仅适用于采用“登上顶端”策略的广告活动。</aside>\n\n 搜索结果中的位置范围：\n  - `最佳-4`，\n  - `最佳-12`，\n  - `最佳-20`，\n  - `最佳-30`.\n",
+            "default": "最佳-20",
+            "type": "string",
+            "format": "uint64"
+          }
+        },
+        "required": [
+          "sku"
+        ]
+      },
+      "extcampaignUpdateProductsRequest": {
+        "type": "object",
+        "properties": {
+          "bids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignUpdateProductsRequestProduct"
+            },
+            "description": "点击佣金。"
+          }
+        }
+      },
+      "extcampaignAddProductsRequestProduct": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "format": "uint64",
+            "description": "促销商品的SKU。\n\n必填字段。\n"
+          },
+          "bid": {
+            "type": "string",
+            "format": "uint64",
+            "description": "<aside class=\"notice\"> 仅适用于“平均每次点击费用”策略。</aside>\n\n单次点击出价——CPC。\n"
+          },
+          "targetCir": {
+            "minimum": 10,
+            "maximum": 100,
+            "default": 15,
+            "description": "<aside class=\"notice\"> 仅适用于“目标费用”策略。</aside>\n\n目标广告费用份额，单位为百分比。\n",
+            "type": "number",
+            "format": "double"
+          },
+          "topPosition": {
+            "description": "<aside class=\"notice\"> 仅适用于采用“登上顶端”策略的广告活动。</aside>\n\n 搜索结果中的位置范围：\n  - `最佳-4`，\n  - `最佳-12`，\n  - `最佳-20`，\n  - `最佳-30`.\n",
+            "default": "最佳-20",
+            "type": "string",
+            "format": "uint64"
+          }
+        }
+      },
+      "extcampaignAddProductsRequest": {
+        "type": "object",
+        "properties": {
+          "bids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignAddProductsRequestProduct"
+            },
+            "description": "点击佣金。"
+          }
+        }
+      },
+      "extcampaignGetProductsResponseV2Product": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "format": "uint64",
+            "description": "商品标识：Ozon ID 或 SKU。\n"
+          },
+          "bid": {
+            "type": "string",
+            "format": "uint64",
+            "description": "<aside class=\"notice\"> 仅适用于“平均每次点击费用”策略。</aside>\n\n单次点击出价——CPC。\n"
+          },
+          "targetCir": {
+            "minimum": 10,
+            "maximum": 100,
+            "default": 15,
+            "description": "<aside class=\"notice\"> 仅适用于“目标费用”策略。</aside>\n\n目标广告费用份额，单位为百分比。\n",
+            "type": "number",
+            "format": "double"
+          },
+          "title": {
+            "type": "string",
+            "description": "商品名称。"
+          },
+          "topPosition": {
+            "description": "<aside class=\"notice\"> 仅适用于采用“登上顶端”策略的广告活动。</aside>\n\n 搜索结果中的位置范围：\n  - `最佳-4`，\n  - `最佳-12`，\n  - `最佳-20`，\n  - `最佳-30`.\n",
+            "default": "最佳-20",
+            "type": "string",
+            "format": "uint64"
+          }
+        }
+      },
+      "extcampaignGetProductsResponseV2": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "description": "活动商品列表。",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignGetProductsResponseV2Product"
+            }
+          }
+        }
+      },
+      "extcampaignDeleteProductsRequest": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "description": "推广商品的SKU。"
+          }
+        }
+      },
+      "GetProductsCompetitiveBidsResponseBids": {
+        "type": "object",
+        "title": "object",
+        "properties": {
+          "bid": {
+            "type": "string",
+            "format": "uint64",
+            "description": "赔偿率。"
+          },
+          "sku": {
+            "type": "string",
+            "description": "商品SKU。"
+          }
+        }
+      },
+      "extcampaignGetProductsCompetitiveBidsResponse": {
+        "type": "object",
+        "properties": {
+          "bids": {
+            "type": "array",
+            "description": "投注列表。",
+            "items": {
+              "$ref": "#/components/schemas/GetProductsCompetitiveBidsResponseBids"
+            }
+          },
+          "campaignId": {
+            "type": "string",
+            "description": "广告活动标识符。"
+          }
+        }
+      },
+      "extcampaignListSearchPromoProductsRequestV2": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "description": "页码。分页从1开始。"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "页面尺寸。"
+          }
+        }
+      },
+      "extcampaignListSearchPromoProductsResponseV2Hint": {
+        "type": "object",
+        "title": "object",
+        "properties": {
+          "campaignId": {
+            "type": "string",
+            "format": "uint64",
+            "description": "广告活动标识符。"
+          },
+          "organisationTitle": {
+            "type": "string",
+            "description": "组织名称。"
+          }
+        },
+        "description": "最大投注。"
+      },
+      "extcampaignListSearchPromoProductsResponseV2PreviousBid": {
+        "type": "object",
+        "title": "object",
+        "properties": {
+          "bid": {
+            "type": "number",
+            "format": "double",
+            "description": "之前的值 `products.bid`。"
+          },
+          "bidPrice": {
+            "type": "string",
+            "description": "之前的值 `products.bidPrice`。"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最后更改评分的日期和时间。"
+          }
+        },
+        "description": "前一轮的投注信息。"
+      },
+      "extcampaignListSearchPromoProductsResponseV2Views": {
+        "type": "object",
+        "title": "object",
+        "properties": {
+          "previousWeek": {
+            "type": "string",
+            "format": "uint64",
+            "description": "上周商品的浏览次数。"
+          },
+          "thisWeek": {
+            "type": "string",
+            "format": "uint64",
+            "description": "最近7天内商品的浏览次数。"
+          }
+        },
+        "description": "观看信息。"
+      },
+      "extcampaignListSearchPromoProductsResponseV2Product": {
+        "type": "object",
+        "title": "object",
+        "properties": {
+          "bid": {
+            "type": "number",
+            "format": "double",
+            "description": "每个订单的佣金（CPO）。单位是商品价格的百分比。"
+          },
+          "bidPrice": {
+            "type": "string",
+            "description": "每个订单的佣金（CPO）在卢布。"
+          },
+          "hint": {
+            "$ref": "#/components/schemas/extcampaignListSearchPromoProductsResponseV2Hint"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "图片链接地址。"
+          },
+          "isSearchPromoAvailable": {
+            "type": "boolean",
+            "description": "`true`，如果商品在“按订单付款”中没有被封锁。\n"
+          },
+          "previousBid": {
+            "$ref": "#/components/schemas/extcampaignListSearchPromoProductsResponseV2PreviousBid"
+          },
+          "previousVisibilityIndex": {
+            "type": "string",
+            "description": "之前的`visibilityIndex`值。"
+          },
+          "price": {
+            "type": "string",
+            "description": "商品价格。"
+          },
+          "searchPromoStatus": {
+            "type": "boolean",
+            "description": "`true`，如果已开启在“按订单付款”中的商品推广。\n"
+          },
+          "sku": {
+            "type": "string",
+            "format": "uint64",
+            "description": "推广商品的SKU。"
+          },
+          "sourceSku": {
+            "type": "string",
+            "description": "卖家货号。"
+          },
+          "title": {
+            "type": "string",
+            "description": "商品名称。"
+          },
+          "views": {
+            "$ref": "#/components/schemas/extcampaignListSearchPromoProductsResponseV2Views"
+          },
+          "visibilityIndex": {
+            "type": "string",
+            "description": "可见性指数。"
+          }
+        }
+      },
+      "extcampaignListSearchPromoProductsResponseV2": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignListSearchPromoProductsResponseV2Product"
+            },
+            "description": "商品列表。"
+          },
+          "total": {
+            "type": "string",
+            "format": "uint64",
+            "description": "商品数量。"
+          }
+        }
+      },
+      "extcampaignGetProductsRecommendedBidsRequest": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "description": "商品标识符列表。"
+          }
+        }
+      },
+      "extcampaignGetProductsRecommendedBidsResponse": {
+        "type": "object",
+        "properties": {
+          "recommendedBids": {
+            "type": "object",
+            "description": "推荐投注列表。",
+            "additionalProperties": {
+              "x-additionalPropertiesName": "SKU",
+              "type": "string",
+              "description": "商品SKU和每个订单的推荐佣金（CPO）百分比。"
+            }
+          }
+        }
+      },
+      "extcampaignSetSearchPromoBidsRequestV2Bid": {
+        "type": "object",
+        "properties": {
+          "bid": {
+            "type": "number",
+            "format": "double",
+            "description": "每个订单的佣金（CPO），单位是商品价格的百分比。"
+          },
+          "sku": {
+            "type": "string",
+            "format": "uint64",
+            "description": "商品标识符。"
+          }
+        }
+      },
+      "extcampaignSetSearchPromoBidsRequestV2": {
+        "type": "object",
+        "properties": {
+          "bids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignSetSearchPromoBidsRequestV2Bid"
+            },
+            "description": "投注的含义。"
+          }
+        }
+      },
+      "extcampaignSetSearchPromoBidsResponseV2ResponseCellextcampaignSetSearchPromoBidsResponseV2ResponseCell": {
+        "type": "object",
+        "properties": {
+          "bid": {
+            "type": "number",
+            "title": "number",
+            "format": "double",
+            "description": "投注的含义。"
+          },
+          "error": {
+            "type": "string",
+            "description": "无法更新评分的错误。"
+          },
+          "sku": {
+            "type": "string",
+            "title": "string",
+            "format": "uint64",
+            "description": "推广商品的SKU。"
+          },
+          "update": {
+            "type": "boolean",
+            "description": "如果投注已更新，应为 `true`。\n"
+          }
+        }
+      },
+      "extcampaignSetSearchPromoBidsResponseV2extcampaignSetSearchPromoBidsResponseV2": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "array",
+            "title": "object",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignSetSearchPromoBidsResponseV2ResponseCellextcampaignSetSearchPromoBidsResponseV2ResponseCell"
+            },
+            "description": "方法的回复。"
+          }
+        }
+      },
+      "extcampaignBatchEnableProductsRequest": {
+        "type": "object",
+        "properties": {
+          "skus": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "description": "商品标识符列表。"
+          }
+        }
+      },
+      "extcampaignBatchEnableProductsResponseResponseCellextcampaignBatchEnableProductsResponseResponseCell": {
+        "type": "object",
+        "properties": {
+          "bid": {
+            "type": "number",
+            "title": "number",
+            "format": "double",
+            "description": "投注的含义。"
+          },
+          "error": {
+            "type": "string",
+            "description": "无法开启商品推广的错误。"
+          },
+          "sku": {
+            "type": "string",
+            "title": "string",
+            "format": "uint64",
+            "description": "推广商品的SKU。"
+          },
+          "update": {
+            "type": "boolean",
+            "description": "如果商品推广已启用，应为 `true`。\n"
+          }
+        }
+      },
+      "extcampaignBatchEnableProductsResponseextcampaignBatchEnableProductsResponse": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "array",
+            "title": "object",
+            "items": {
+              "$ref": "#/components/schemas/extcampaignBatchEnableProductsResponseResponseCellextcampaignBatchEnableProductsResponseResponseCell"
+            },
+            "description": "方法的回复。"
+          }
+        }
+      },
+      "extcampaignBatchDisableProductsRequest": {
+        "type": "object",
+        "properties": {
+          "skus": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "description": "商品标识符列表。"
+          }
+        }
+      },
+      "extcampaignDeleteSearchPromoBidsRequestV2": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uint64"
+            },
+            "description": "商品标识符列表。"
+          }
+        }
+      },
+      "extcampaignActivateAllSkuPromoCampaignResponse": {
+        "type": "object",
+        "properties": {
+          "selectedBid": {
+            "description": "选定的推广出价。",
+            "type": "string",
+            "format": "uint64"
+          }
+        }
+      },
+      "extstatVendorStatisticsRequest": {
+        "type": "object",
+        "description": "请求生成报告的方法。",
+        "properties": {
+          "dateFrom": {
+            "type": "string",
+            "description": "报告期开始。\n\n日期不得早于2022年1月1日。\n"
+          },
+          "dateTo": {
+            "type": "string",
+            "description": "报告期结束。\n\n日期必须晚于 `dateFrom` 不超过3个月。如果日期晚于3个月， \n报告将在指定在 `dateFrom` 中的日期后3个月内生成。\n"
+          },
+          "type": {
+            "enum": [
+              "TRAFFIC_SOURCES",
+              "ORDERS"
+            ],
+            "type": "string",
+            "description": "报告类型：\n- `TRAFFIC_SOURCES` — 交通来源报告。\n- `ORDERS` — 订单报告。\n"
+          }
+        }
+      },
+      "extstatVendorStatisticsResponse": {
+        "type": "object",
+        "description": "报告信息。",
+        "properties": {
+          "UUID": {
+            "type": "string",
+            "description": "已发送请求的唯一标识符，可以用于后续检查请求执行状态并下载报告。"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "报告生成日期。"
+          },
+          "error": {
+            "type": "string",
+            "description": "错误描述。"
+          },
+          "link": {
+            "type": "string",
+            "description": "报告链接。"
+          },
+          "request": {
+            "$ref": "#/components/schemas/extstatVendorStatisticsRequest"
+          },
+          "state": {
+            "default": "NOT_STARTED",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "OK",
+              "ERROR",
+              "TIMEOUT",
+              "CANCEL"
+            ],
+            "description": "报告生成状态：\n- `NOT_STARTED` — 仍未开始。 \n- `IN_PROGRESS` — 在进行中。 \n- `CANCEL` — 已取消。\n- `OK` — 报告已生成。\n- `ERROR` — 发生错误。\n- `TIMEOUT` — 等待时间已到。\n"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "状态变更时间。"
+          }
+        }
+      },
+      "VendorStatisticsReportsListItem": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/extstatVendorStatisticsResponse"
+          },
+          "name": {
+            "type": "string",
+            "description": "报告名称。"
+          }
+        }
+      },
+      "extstatVendorStatisticsReportsList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "报告信息。",
+            "items": {
+              "$ref": "#/components/schemas/VendorStatisticsReportsListItem"
+            }
+          },
+          "total": {
+            "type": "string",
+            "format": "uint64",
+            "description": "报告数量。"
+          }
+        }
+      },
+      "extorganisationGetVendorTagResponse": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "description": "组织的前缀用于UTM标记。"
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "extcampaignBidBySKURequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/extcampaignBidBySKURequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "extstatStatisticsRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/extstatStatisticsRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "extstatStatisticsVideobannerRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/extstatStatisticsVideobannerRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "extstatisticsSearchPromoOrdersReportRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "报告周期的起始日期，以RFC 3339格式。"
+                },
+                "to": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "报告周期的最终日期，以RFC 3339格式。"
+                }
+              }
+            }
+          }
+        }
+      },
+      "extstatisticsStatisticsRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/extstatisticsStatisticsRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "extcampaignCreateProductCampaignRequestV2CPC": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/extcampaignCreateProductCampaignRequestV2CPC"
+            }
+          }
+        },
+        "required": true
+      },
+      "extcampaignCampaignID": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        },
+        "required": true
+      },
+      "extcampaignUpdateProductsRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/extcampaignUpdateProductsRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "extcampaignAddProductsRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/extcampaignAddProductsRequest"
+            }
+          }
+        },
+        "required": true
+      },
+      "extstatVendorStatisticsRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/extstatVendorStatisticsRequest"
+            }
+          }
+        },
+        "required": true
+      }
+    }
+  }
+}
