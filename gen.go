@@ -59,7 +59,7 @@ type rawSchema struct {
 }
 
 func main() {
-	data, err := os.ReadFile("swagger.json")
+	data, err := os.ReadFile("origin/swagger.json")
 	if err != nil {
 		panic(err)
 	}
