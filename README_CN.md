@@ -166,17 +166,6 @@ if err != nil {
 }
 ```
 
-## 从规范重新生成
-
-SDK 由 `swagger.json` 生成：
-
-```bash
-go run gen.go
-```
-
-这会在每个模块目录下重写 `types.go`、`service.go` 和 `service_test.go`。
-生成是确定性的——重复运行会产生逐字节一致的输出。
-
 ## 测试
 
 ```bash

@@ -167,17 +167,6 @@ if err != nil {
 }
 ```
 
-## Regenerating from the Spec
-
-The SDK is generated from `swagger.json`:
-
-```bash
-go run gen.go
-```
-
-This rewrites `types.go`, `service.go` and `service_test.go` under each module
-directory. Regeneration is deterministic — repeated runs produce byte-identical output.
-
 ## Testing
 
 ```bash
