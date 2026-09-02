@@ -6,7 +6,7 @@
 
 [English Documentation](README.md)
 
-Ozon Performance API 的 Go 语言客户端库。  
+**go-ozon-performance** 是 [Ozon Performance API](https://docs.ozon.ru/api/performance/) 的 Go 语言客户端库——俄罗斯电商平台 Ozon 广告平台的 API，覆盖活动、统计、报表、商品出价与外部流量分析。  
 覆盖 **44 个 API 方法**，**6 个服务模块**，**115 个生成类型**。
 
 ## 特性

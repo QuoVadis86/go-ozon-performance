@@ -6,7 +6,7 @@
 
 [📖 中文文档](README_CN.md)
 
-A Go client library for the [Ozon Performance API](https://docs.ozon.ru/api/performance/).  
+**go-ozon-performance** is a Go client library for the [Ozon Performance API](https://docs.ozon.ru/api/performance/) — Ozon's advertising platform API for campaigns, statistics, reports, product bids and vendor analytics.  
 Covers **44 API methods** across **6 service modules** with **115 generated types**.
 
 ## Features
