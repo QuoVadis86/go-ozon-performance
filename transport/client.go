@@ -1,3 +1,6 @@
+// Package transport provides the HTTP client infrastructure for the Ozon
+// Performance API Go SDK: OAuth2 token management, typed request helpers and
+// error types shared by all service modules.
 package transport
 
 import (

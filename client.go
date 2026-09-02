@@ -1,3 +1,14 @@
+// Package ozon provides a Go client for the Ozon Performance API
+// (Ozon's advertising platform).
+//
+// Create a client with ozon.NewClient(clientID, clientSecret, nil). The
+// client manages OAuth2 token acquisition and refresh automatically, so no
+// explicit authorization step is required.
+//
+// Service modules are exposed as typed clients:
+//
+//	cl := ozon.NewClient("id", "secret", nil)
+//	camps, err := cl.Campaign.ListCampaigns(ctx, &campaign.ListCampaignsRequest{})
 package ozon
 
 import (

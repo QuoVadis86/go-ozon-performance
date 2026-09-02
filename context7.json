@@ -1,0 +1,16 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Ozon Performance API Go SDK",
+  "description": "Go client for the Ozon Performance API with automatic OAuth2 token management. Covers 44 API methods across 6 service modules: campaigns, statistics, ads, product bids, search-promo, vendor reports.",
+  "folders": ["."],
+  "excludeFolders": ["origin", "examples"],
+  "excludeFiles": ["README_CN.md", "LICENSE", ".env.example", "gen.go", "swagger.json"],
+  "rules": [
+    "Use context.Context for all API calls",
+    "The client fetches the OAuth2 bearer token automatically; call client.Token(ctx) only for manual inspection",
+    "Handle *transport.APIError for non-2xx responses via errors.As",
+    "IDs and monetary values use transport.Uint64, tolerant of JSON number and string forms",
+    "Import sub-packages directly, e.g. github.com/QuoVadis86/go-ozon-performance/campaign",
+    "Report endpoints returning CSV/ZIP return raw []byte: MediaCampaignList, ProductCampaignList, GetCampaignExpense, GetCampaignDailyStats, DownloadStatistics"
+  ]
+}
